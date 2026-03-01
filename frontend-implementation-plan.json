@@ -1,0 +1,35 @@
+{
+  "kind": "implementation_plan",
+  "version": "1.0",
+  "title": "Update app color scheme and themes",
+  "requirements": [
+    {
+      "id": "REQ-1",
+      "summary": "Redesign app color palette with fresh cohesive theme using emerald/teal accent colors across all six themes (dark, light, amber, cyberpunk, midnight, ocean) ensuring consistent application to interactive elements and adequate contrast",
+      "acceptanceCriteria": [
+        "All six themes in ThemeContext (dark, light, amber, cyberpunk, midnight, ocean) use the updated color tokens",
+        "Primary accent color is consistently applied to buttons, active nav links, badges, and status indicators",
+        "Both light and dark modes have sufficient contrast ratios for text readability",
+        "Tailwind config color tokens in tailwind.config.js are updated to match the new palette",
+        "No blue or purple tones appear as the primary accent unless they are part of a theme variant"
+      ],
+      "file_operations": [
+        {
+          "path": "frontend/src/index.css",
+          "operation": "modify",
+          "description": "Replace the existing CSS custom properties for all six themes (dark, light, amber, cyberpunk, midnight, ocean) with a new color palette centered around emerald green or teal as the primary accent. Update --primary, --primary-foreground, --accent, --accent-foreground, --destructive, --muted, --card, --popover, --border, and chart color tokens. Ensure light mode uses lighter backgrounds with darker text for contrast, and dark mode uses darker backgrounds with lighter text. Remove any blue or purple accent tones from the primary color variables. Maintain adequate WCAG AA contrast ratios (4.5:1 for normal text, 3:1 for large text) across all theme variants."
+        },
+        {
+          "path": "frontend/index.css",
+          "operation": "modify",
+          "description": "Update the root-level CSS custom properties to match the new color palette defined in frontend/src/index.css. Replace any blue or purple primary/accent color definitions with emerald green or teal values using OKLCH color space. Ensure the default (unthemed) variables provide good contrast and align with the redesigned color scheme."
+        },
+        {
+          "path": "frontend/tailwind.config.js",
+          "operation": "modify",
+          "description": "Update the extended color tokens in the theme configuration to reference the new CSS custom properties. Ensure primary, accent, destructive, muted, card, popover, and border color mappings use the updated emerald/teal palette. Verify that Tailwind utilities like bg-primary, text-accent, border-primary correctly resolve to the new color scheme. Do not change typography, spacing, or animation configurations."
+        }
+      ]
+    }
+  ]
+}

@@ -1,0 +1,363 @@
+/* Reset */
+* {
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+  font-family: 'Segoe UI', sans-serif;
+}
+
+/* Page background */
+body {
+  background: #f6f1eb;
+  color: #3e3a36;
+  min-height: 100vh;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+
+/* App container */
+.app {
+  width: 360px;
+  padding: 24px;
+}
+
+/* Cards */
+.card {
+  background: #fffaf5;
+  border-radius: 16px;
+  padding: 20px;
+  margin-bottom: 20px;
+  box-shadow: 0 10px 25px rgba(0, 0, 0, 0.08);
+}
+
+.card h2 {
+  font-size: 16px;
+  font-weight: 500;
+  margin-bottom: 12px;
+}
+
+/* Inputs */
+input,
+select {
+  width: 100%;
+  padding: 10px 12px;
+  margin-bottom: 12px;
+  border-radius: 10px;
+  border: 1px solid #e6ddd5;
+  background: #fff;
+  font-size: 14px;
+}
+
+/* Buttons */
+button {
+  width: 100%;
+  padding: 10px;
+  border-radius: 12px;
+  border: none;
+  background: #c8b6a6;
+  color: #fff;
+  font-size: 14px;
+  cursor: pointer;
+}
+
+button:disabled {
+  background: #d6cec6;
+  cursor: not-allowed;
+}
+
+/* Secondary button */
+button.ghost {
+  margin-top: 10px;
+  background: transparent;
+  color: #8a817c;
+  border: 1px dashed #d6cec6;
+}
+
+/* Credits */
+#creditDisplay {
+  text-align: center;
+  font-size: 18px;
+  margin-bottom: 12px;
+}
+
+/* Progress bar */
+.progress-container {
+  width: 100%;
+  height: 10px;
+  background: #e6ddd5;
+  border-radius: 10px;
+  margin: 12px 0 16px 0;
+  overflow: hidden;
+}
+
+#progressBar {
+  height: 100%;
+  width: 0%;
+  background: linear-gradient(90deg, #c8b6a6, #b8a692);
+  transition: width 0.4s ease;
+}
+
+/* Task list */
+#taskList {
+  list-style: none;
+  margin-top: 16px;
+  padding: 0;
+}
+
+.task {
+  padding: 12px 14px;
+  border-radius: 12px;
+  margin-bottom: 10px;
+  font-size: 14px;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+/* Priority colors (nude tones) */
+.task.low {
+  background: #e6efe9;   /* sage nude */
+  color: #3f5f50;
+}
+
+.task.medium {
+  background: #f3eadf;   /* sand nude */
+  color: #6a4f3b;
+}
+
+.task.high {
+  background: #f2e1dc;   /* rose nude */
+  color: #7a3e34;
+}
+/* Complete button */
+.complete-btn {
+  background: transparent;
+  border: none;
+  font-size: 16px;
+  cursor: pointer;
+  margin-left: 10px;
+  color: inherit;
+}
+
+/* Completion animation */
+.task.completed {
+  opacity: 0;
+  transform: translateX(20px);
+  transition: all 0.4s ease;
+}
+.complete-btn:hover {
+  transform: scale(1.2);
+  transition: transform 0.15s ease;
+}
+.complete-btn:hover {
+  transform: scale(1.2);
+  transition: transform 0.15s ease;
+}
+
+/* Locked breathing animation */
+#unlockBtn {
+  transition: all 0.3s ease;
+}
+
+#unlockBtn:disabled {
+  animation: breathe 3s ease-in-out infinite;
+}
+
+@keyframes breathe {
+  0% {
+    opacity: 0.7;
+  }
+  50% {
+    opacity: 1;
+  }
+  100% {
+    opacity: 0.7;
+  }
+}
+/* Unlock pulse */
+#unlockBtn.unlocked {
+  background: #9c8b7e;
+  animation: unlockPulse 1.5s infinite;
+}
+
+@keyframes unlockPulse {
+  0% {
+    box-shadow: 0 0 0 0 rgba(156, 139, 126, 0.6);
+  }
+  70% {
+    box-shadow: 0 0 0 14px rgba(156, 139, 126, 0);
+  }
+  100% {
+    box-shadow: 0 0 0 0 rgba(156, 139, 126, 0);
+  }
+}
+.task {
+  display: grid;
+  grid-template-columns: 1fr auto auto;
+  gap: 10px;
+  align-items: center;
+}
+
+.task-meta {
+  font-size: 13px;
+  opacity: 0.85;
+}
+/* Completed tasks */
+.completed-title {
+  font-size: 13px;
+  margin-top: 18px;
+  margin-bottom: 8px;
+  opacity: 0.6;
+}
+
+#completedList .task {
+  background: #f1ece7;
+  color: #7a726c;
+  opacity: 0.8;
+}
+
+#completedList .complete-btn {
+  display: none;
+}
+.task.done {
+  text-decoration: line-through;
+}
+/* Task badges (hours & credits) */
+.task-badges {
+  display: flex;
+  gap: 6px;
+}
+
+.badge {
+  padding: 4px 8px;
+  border-radius: 8px;
+  font-size: 12px;
+  line-height: 1;
+  white-space: nowrap;
+}
+
+/* Hours badge */
+.badge.hours {
+  background: rgba(255, 255, 255, 0.6);
+  color: inherit;
+}
+
+/* Credits badge */
+.badge.credits {
+  background: rgba(0, 0, 0, 0.06);
+  font-weight: 500;
+}
+.task {
+  display: grid;
+  grid-template-columns: 1fr auto auto;
+  gap: 10px;
+  align-items: center;
+}
+/* Inline notice (soft popup) */
+.notice {
+  margin-top: 10px;
+  padding: 8px 12px;
+  border-radius: 10px;
+  font-size: 13px;
+  background: #f3eadf;
+  color: #6a4f3b;
+  opacity: 0;
+  transform: translateY(-4px);
+  transition: all 0.3s ease;
+}
+
+.notice.show {
+  opacity: 1;
+  transform: translateY(0);
+}
+
+/* Time input (hours + minutes) */
+.time-input {
+  display: flex;
+  gap: 8px;
+}
+
+.time-input input {
+  width: 50%;
+  text-align: center;
+}
+/* Credit system explanation */
+.credit-system {
+  margin-top: 16px;
+  padding: 12px;
+  border-radius: 14px;
+  background: rgba(255, 255, 255, 0.5);
+  font-size: 13px;
+  opacity: 0.9;
+}
+
+.credit-system h3 {
+  font-size: 13px;
+  margin-bottom: 6px;
+  opacity: 0.7;
+}
+
+.credit-system ul {
+  margin: 6px 0;
+  padding-left: 16px;
+}
+
+.credit-system li {
+  margin-bottom: 4px;
+}
+
+.credit-system .example {
+  margin-top: 8px;
+  font-style: italic;
+  opacity: 0.7;
+}
+/* Floating credit status (outside cards) */
+.credit-status {
+  text-align: center;
+  font-size: 15px;
+  margin-bottom: 14px;
+  opacity: 0.75;
+  letter-spacing: 0.3px;
+}
+
+/* Subtle separator feel (not a box) */
+.credit-status::after {
+  content: "";
+  display: block;
+  width: 40%;
+  height: 1px;
+  background: #e6ddd5;
+  margin: 8px auto 0;
+}
+
+.app {
+  width: 360px;
+  padding: 24px;
+}
+/* Credit header (outside cards) */
+.credit-header {
+  margin-bottom: 18px;
+}
+
+.credit-status {
+  text-align: center;
+  font-size: 15px;
+  opacity: 0.75;
+  letter-spacing: 0.3px;
+}
+
+/* visual separation line */
+.credit-status::after {
+  content: "";
+  display: block;
+  width: 50%;
+  height: 1px;
+  background: #e6ddd5;
+  margin: 10px auto 0;
+}
+
+.hidden {
+  display: none;
+}
+

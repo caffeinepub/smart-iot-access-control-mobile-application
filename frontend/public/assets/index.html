@@ -1,0 +1,102 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8">
+  <title>FocusLock</title>
+
+  <!-- CSS LINK (THIS WAS MISSING) -->
+  <link rel="stylesheet" href="./style.css">
+</head>
+
+
+<body>
+
+  <div class="app">
+
+    <!-- ADD TASK CARD -->
+    <div class="credit-header">
+  <p id="creditDisplay" class="credit-status hidden"></p>
+</div>
+
+    <div class="card">
+      <h2>Add Task</h2>
+
+      <input id="taskName" placeholder="Task name" />
+      <div class="time-input">
+  <input id="hours" type="number" min="0" placeholder="h" />
+  <input id="minutes" type="number" min="0" max="59" placeholder="min" />
+</div>
+
+
+      <select id="priority">
+        <option value="1">Low priority</option>
+        <option value="2">Medium priority</option>
+        <option value="3">High priority</option>
+      </select>
+
+      <button type="button" id="addTaskBtn">Add Task</button>
+
+      <ul id="taskList"></ul>
+
+      <h3 class="completed-title">Completed</h3>
+      <ul id="completedList"></ul>
+    </div>
+
+    <!-- CREDITS CARD -->
+    <div class="card">
+      <h2>Credits</h2>
+      <div class="credit-system">
+  <h3>Credit System</h3>
+  <p>Credits are earned based on effort and importance.</p>
+
+  <ul>
+    <li><strong>Low priority</strong> → ×1</li>
+    <li><strong>Medium priority</strong> → ×2</li>
+    <li><strong>High priority</strong> → ×3</li>
+  </ul>
+
+  <p class="example">
+    Example: <span>1h 30m × High → 5 credits</span>
+  </p>
+</div>
+
+
+
+      <!-- DAILY CREDIT THRESHOLD -->
+      <div id="dailyGoal" class="threshold-box">
+        <p class="threshold-title">Today’s Credit Goal</p>
+        <p id="thresholdNotice" class="notice hidden"></p>
+
+
+        <div id="thresholdSetter">
+          <input
+            type="number"
+            id="thresholdInput"
+            min="1"
+            placeholder="Enter goal"
+          />
+          <button type="button" id="setThresholdBtn">Confirm</button>
+        </div>
+
+        <div id="thresholdLocked" class="hidden">
+          <span id="lockedValue"></span>
+          <span class="locked-check">✓ locked for today</span>
+        </div>
+      </div>
+
+      <p id="creditDisplay">0 / 100 credits</p>
+
+      <div class="progress-container">
+        <div id="progressBar"></div>
+      </div>
+
+      <button id="unlockBtn" disabled>🔒 Locked</button>
+    </div>
+
+  </div>
+
+  <script src="script.js"></script>
+
+</body>
+</html>

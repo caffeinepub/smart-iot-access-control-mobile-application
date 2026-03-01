@@ -1,0 +1,29 @@
+{
+  "schemaVersion": "1.0.0",
+  "projectStateVersion": 3,
+  "summary": "Project with color customization request",
+  "architectural_notes": [],
+  "known_issues": [],
+  "isFixRequest": false,
+  "existing_features": [
+    {
+      "id": "feature-redesign-the-app-s-color-palette-with-a-fresh-cohesive-visual-theme-update-the-css-custom-properties-in-frontend-src-index-css-and-frontend-index-css-for-all-themes-dark-light-amber-cyberpunk-midnight-ocean-choose-a-distinctive-primary-accent-color-away-from-blue-purple-such-as-emerald-green-or-teal-and-apply-it-consistently-across-buttons-badges-active-states-charts-and-highlights-ensure-adequate-contrast-in-both-light-and-dark-modes",
+      "title": "Redesign the app's color palette with a fresh, cohesive visual theme. Update the CSS custom properties in frontend/src/index.css and frontend/index.css for all themes (dark, light, amber, cyberpunk, midnight, ocean). Choose a distinctive primary accent color away from blue/purple — such as emerald green or teal — and apply it consistently across buttons, badges, active states, charts, and highlights. Ensure adequate contrast in both light and dark modes.",
+      "reqIds": [
+        "REQ-1"
+      ],
+      "version": 1
+    }
+  ],
+  "new_feature_requests": [
+    {
+      "id": "AR-1",
+      "summary": "Change colors for the app",
+      "reqIds": [],
+      "status": "pending"
+    }
+  ],
+  "projectName": "Smart Access Control",
+  "clarification_mode": "instant",
+  "clarification_rounds": 0
+}

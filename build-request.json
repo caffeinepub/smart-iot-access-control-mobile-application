@@ -1,0 +1,41 @@
+{
+  "kind": "build_request",
+  "title": "Update app color scheme and themes",
+  "projectName": "Smart Access Control",
+  "priority": "normal",
+  "requirements": [
+    {
+      "id": "REQ-1",
+      "text": "Redesign the app's color palette with a fresh, cohesive visual theme. Update the CSS custom properties in frontend/src/index.css and frontend/index.css for all themes (dark, light, amber, cyberpunk, midnight, ocean). Choose a distinctive primary accent color away from blue/purple — such as emerald green or teal — and apply it consistently across buttons, badges, active states, charts, and highlights. Ensure adequate contrast in both light and dark modes.",
+      "target": "frontend",
+      "source": {
+        "messageIds": [
+          "msg-7"
+        ],
+        "quotes": [
+          "change colors for it"
+        ]
+      },
+      "acceptanceCriteria": [
+        "All six themes in ThemeContext (dark, light, amber, cyberpunk, midnight, ocean) use the updated color tokens",
+        "Primary accent color is consistently applied to buttons, active nav links, badges, and status indicators",
+        "Both light and dark modes have sufficient contrast ratios for text readability",
+        "Tailwind config color tokens in tailwind.config.js are updated to match the new palette",
+        "No blue or purple tones appear as the primary accent unless they are part of a theme variant"
+      ]
+    }
+  ],
+  "constraints": [
+    "Do not modify any files under frontend/src/hooks/useInternetIdentity.ts, frontend/src/hooks/useActor.ts, frontend/src/main.tsx, or frontend/src/components/ui",
+    "Do not change any backend logic or data models"
+  ],
+  "nonGoals": [
+    "Adding new themes beyond the existing six",
+    "Changing layout, typography sizes, or component structure",
+    "Any backend changes"
+  ],
+  "imageRequirements": {
+    "required": [],
+    "edits": []
+  }
+}

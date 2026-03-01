@@ -1,0 +1,25 @@
+{
+  "kind": "feature_evidence_report",
+  "features": [
+    {
+      "featureId": "feature-redesign-the-app-s-color-palette-with-a-fresh-cohesive-visual-theme-update-the-css-custom-properties-in-frontend-src-index-css-and-frontend-index-css-for-all-themes-dark-light-amber-cyberpunk-midnight-ocean-choose-a-distinctive-primary-accent-color-away-from-blue-purple-such-as-emerald-green-or-teal-and-apply-it-consistently-across-buttons-badges-active-states-charts-and-highlights-ensure-adequate-contrast-in-both-light-and-dark-modes",
+      "featureTitle": "Redesign the app's color palette with a fresh, cohesive visual theme. Update the CSS custom properties in frontend/src/index.css and frontend/index.css for all themes (dark, light, amber, cyberpunk, midnight, ocean). Choose a distinctive primary accent color away from blue/purple — such as emerald green or teal — and apply it consistently across buttons, badges, active states, charts, and highlights. Ensure adequate contrast in both light and dark modes.",
+      "files": [
+        "frontend/src/index.css",
+        "frontend/tailwind.config.js"
+      ],
+      "components": [
+        "authorization@4.0.0",
+        "core-infrastructure@1.0.2",
+        "shadcn-ui@1.0.0",
+        "build-template-react@1.0.0",
+        "initial-app@1.0.0",
+        "github-export-icp-cli@1.0.0"
+      ],
+      "testIds": [
+        "REQ-1"
+      ],
+      "confidence": "high"
+    }
+  ]
+}
