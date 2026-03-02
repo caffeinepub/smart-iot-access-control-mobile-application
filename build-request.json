@@ -1,38 +1,151 @@
 {
   "kind": "build_request",
-  "title": "Update app color scheme and themes",
-  "projectName": "Smart Access Control",
+  "title": "Add To-Do List feature and Admin Dashboard with credential-based access control",
+  "projectName": "Smart IoT Access Control",
   "priority": "normal",
   "requirements": [
     {
       "id": "REQ-1",
-      "text": "Redesign the app's color palette with a fresh, cohesive visual theme. Update the CSS custom properties in frontend/src/index.css and frontend/index.css for all themes (dark, light, amber, cyberpunk, midnight, ocean). Choose a distinctive primary accent color away from blue/purple — such as emerald green or teal — and apply it consistently across buttons, badges, active states, charts, and highlights. Ensure adequate contrast in both light and dark modes.",
-      "target": "frontend",
+      "text": "Add a To-Do List feature to the backend: define a ToDo data type with fields for id, title, description, completed (bool), createdAt (timestamp), and optionally owner principal. Implement CRUD operations: createTodo, getTodos, updateTodo (toggle complete / edit title), deleteTodo stored in a stable map.",
+      "target": "backend",
       "source": {
         "messageIds": [
-          "msg-7"
+          "msg-1"
         ],
         "quotes": [
-          "change colors for it"
+          "add to do list in it and then upgrade it"
         ]
       },
       "acceptanceCriteria": [
-        "All six themes in ThemeContext (dark, light, amber, cyberpunk, midnight, ocean) use the updated color tokens",
-        "Primary accent color is consistently applied to buttons, active nav links, badges, and status indicators",
-        "Both light and dark modes have sufficient contrast ratios for text readability",
-        "Tailwind config color tokens in tailwind.config.js are updated to match the new palette",
-        "No blue or purple tones appear as the primary accent unless they are part of a theme variant"
+        "Backend exposes createTodo, getTodos, updateTodo, and deleteTodo functions",
+        "ToDo items persist across canister upgrades via stable storage",
+        "Each todo has id, title, description, completed, and createdAt fields"
+      ]
+    },
+    {
+      "id": "REQ-2",
+      "text": "Add a To-Do List page in the frontend at route /todos. The page should display all todos fetched via React Query, allow creating new todos (title + optional description), marking todos complete/incomplete, editing todo titles, and deleting todos. Show completed and pending todos in separate sections.",
+      "target": "frontend",
+      "source": {
+        "messageIds": [
+          "msg-1"
+        ],
+        "quotes": [
+          "add to do list in it and then upgrade it"
+        ]
+      },
+      "acceptanceCriteria": [
+        "Route /todos is accessible from the navigation header",
+        "User can create a new todo with title and optional description",
+        "User can toggle a todo between complete and incomplete",
+        "User can delete a todo with a confirmation step",
+        "Pending and completed todos are displayed in separate sections",
+        "All mutations use React Query and show toast feedback"
+      ]
+    },
+    {
+      "id": "REQ-3",
+      "text": "Add a navigation link to the To-Do List page (/todos) in the Header component alongside existing nav links.",
+      "target": "frontend",
+      "source": {
+        "messageIds": [
+          "msg-1"
+        ],
+        "quotes": [
+          "add to do list in it"
+        ]
+      },
+      "acceptanceCriteria": [
+        "Header displays a 'To-Do' or 'Tasks' nav link",
+        "Link navigates to /todos"
+      ]
+    },
+    {
+      "id": "REQ-4",
+      "text": "Create a dedicated Admin Dashboard page at route /admin-dashboard (separate from the existing AdminDashboard.tsx if needed, or upgrade it). This page must be accessible ONLY when the user has authenticated with email aahanvarma42@gmail.com and password aahan123. Implement a simple credential check gate: show a login form (email + password fields) before rendering the dashboard content. Store the authenticated session in React state or sessionStorage so the gate only needs to be passed once per session.",
+      "target": "frontend",
+      "source": {
+        "messageIds": [
+          "msg-1"
+        ],
+        "quotes": [
+          "add admin dashboar to monitor and only accessable with email:aahanvarma42@gmail.com and pass:aahan123"
+        ]
+      },
+      "acceptanceCriteria": [
+        "Navigating to /admin-dashboard shows a login form if not yet authenticated",
+        "Only credentials email=aahanvarma42@gmail.com and password=aahan123 grant access",
+        "Incorrect credentials show an error message",
+        "After successful login the admin dashboard content is shown without re-prompting in the same session",
+        "The admin dashboard displays system-wide monitoring data: device statuses, user counts, recent access events, and todo statistics"
+      ]
+    },
+    {
+      "id": "REQ-5",
+      "text": "Upgrade the Admin Dashboard page content to include a To-Do monitoring panel showing total todos, completed count, pending count, and a list of recent todos across all users.",
+      "target": "frontend",
+      "source": {
+        "messageIds": [
+          "msg-1"
+        ],
+        "quotes": [
+          "add admin dashboar to monitor",
+          "upgrade it"
+        ]
+      },
+      "acceptanceCriteria": [
+        "Admin dashboard shows a stat card with total, completed, and pending todo counts",
+        "Admin dashboard shows a list of recent todos",
+        "Todo data is fetched via React Query"
+      ]
+    },
+    {
+      "id": "REQ-6",
+      "text": "Add an /admin-dashboard route to the TanStack Router configuration in App.tsx pointing to the new Admin Dashboard page component.",
+      "target": "frontend",
+      "source": {
+        "messageIds": [
+          "msg-1"
+        ],
+        "quotes": [
+          "add admin dashboar"
+        ]
+      },
+      "acceptanceCriteria": [
+        "Route /admin-dashboard is registered in the router",
+        "The route renders the credential-gated Admin Dashboard page"
+      ]
+    },
+    {
+      "id": "REQ-7",
+      "text": "Generate a migration.mo file to safely upgrade the existing backend stable state to include the new stable todos map without losing existing device, user, event, and rule data.",
+      "target": "backend",
+      "source": {
+        "messageIds": [
+          "msg-1"
+        ],
+        "quotes": [
+          "upgrade it"
+        ]
+      },
+      "acceptanceCriteria": [
+        "migration.mo preserves all existing stable maps (devices, users, events, rules)",
+        "New stable todos map is initialized empty on first upgrade",
+        "Canister upgrade completes without data loss"
       ]
     }
   ],
   "constraints": [
-    "Do not modify any files under frontend/src/hooks/useInternetIdentity.ts, frontend/src/hooks/useActor.ts, frontend/src/main.tsx, or frontend/src/components/ui",
-    "Do not change any backend logic or data models"
+    "Admin Dashboard credential check must use exactly email: aahanvarma42@gmail.com and password: aahan123",
+    "Do not modify files listed in frontend.immutablePaths",
+    "All Motoko logic must remain in the single backend/main.mo actor",
+    "Existing device, user, event, and rule backend functionality must not be broken"
   ],
   "nonGoals": [
-    "Adding new themes beyond the existing six",
-    "Changing layout, typography sizes, or component structure",
-    "Any backend changes"
+    "Replacing Internet Identity authentication with the admin email/password system — the credential gate is only for the Admin Dashboard page",
+    "Multi-user todo ownership or per-user isolation beyond what is naturally provided by principal",
+    "Real-time todo sync or WebSocket-based updates",
+    "Email notifications or external integrations for todo reminders"
   ],
   "imageRequirements": {
     "required": [],

@@ -10,7 +10,9 @@ import Runtime "mo:core/Runtime";
 import Int "mo:core/Int";
 import MixinAuthorization "authorization/MixinAuthorization";
 import AccessControl "authorization/access-control";
+import Migration "migration";
 
+(with migration = Migration.run)
 actor {
   let accessControlState = AccessControl.initState();
   include MixinAuthorization(accessControlState);
@@ -102,6 +104,15 @@ actor {
     outcome : Bool;
   };
 
+  public type ToDo = {
+    id : Nat;
+    title : Text;
+    description : Text;
+    completed : Bool;
+    createdAt : Int;
+    owner : Principal;
+  };
+
   module LogEvent {
     public func compareByTimestamp(a : LogEvent, b : LogEvent) : Order.Order {
       Int.compare(b.timestamp, a.timestamp);
@@ -132,8 +143,9 @@ actor {
   var vacationModeActive = false;
   let deviceNameCache = Map.empty<Text, Text>();
   let deviceSyncTracker = Map.empty<Text, Time.Time>();
+  let todos = Map.empty<Nat, ToDo>();
+  var toDoCounter = 0;
 
-  // State
   var deviceStatus : DeviceStatus = {
     isLocked = true;
     batteryLevel = 100;
@@ -170,7 +182,7 @@ actor {
 
   public shared ({ caller }) func assignDeviceToAdmin(deviceId : Text) : async () {
     if (not (AccessControl.hasPermission(accessControlState, caller, #admin))) {
-      Runtime.trap("Unauthorized: Only admins can assign devices to admins");
+      Runtime.trap("Unauthorized: Only admin devices are allowed");
     };
     adminDeviceCache.add(deviceId);
     addLogEvent("Device assigned to admin: " # deviceId);
@@ -178,7 +190,7 @@ actor {
 
   public query ({ caller }) func isDeviceAdmin(deviceId : Text) : async () {
     if (not (AccessControl.hasPermission(accessControlState, caller, #admin))) {
-      Runtime.trap("Unauthorized: Only admins can check device admin status");
+      Runtime.trap("Unauthorized: Only admin devices are allowed");
     };
     if (not adminDeviceCache.contains(deviceId)) {
       Runtime.trap("Device is not an admin device");
@@ -216,7 +228,7 @@ actor {
 
   public shared ({ caller }) func updateDeviceStatus(deviceId : Text, newStatus : DeviceStatus) : async () {
     if (not (AccessControl.hasPermission(accessControlState, caller, #admin))) {
-      Runtime.trap("Unauthorized: Only admins can perform this action");
+      Runtime.trap("Unauthorized: Only admin devices are allowed");
     };
     let existingDevice = devices.get(deviceId);
     switch (existingDevice) {
@@ -237,7 +249,7 @@ actor {
 
   public shared ({ caller }) func toggleDeviceLock(deviceId : Text) : async () {
     if (not (AccessControl.hasPermission(accessControlState, caller, #admin))) {
-      Runtime.trap("Unauthorized: Only admins can toggle device lock");
+      Runtime.trap("Unauthorized: Only admin devices are allowed");
     };
     let existingDevice = devices.get(deviceId);
     switch (existingDevice) {
@@ -267,7 +279,6 @@ actor {
     }));
   };
 
-  // Direct device queries by deviceId
   public query ({ caller }) func getDeviceStatusById(deviceId : Text) : async ?DeviceStatus {
     if (not (AccessControl.hasPermission(accessControlState, caller, #user))) {
       Runtime.trap("Unauthorized: Only users can view device status");
@@ -322,7 +333,6 @@ actor {
     devices.size();
   };
 
-  // Get specific device information
   public query ({ caller }) func getDeviceById(deviceId : Text) : async {
     id : Text;
     name : Text;
@@ -347,7 +357,6 @@ actor {
     };
   };
 
-  // Vacation Mode (Admin)
   public shared ({ caller }) func enableVacationMode() : async () {
     if (not (AccessControl.hasPermission(accessControlState, caller, #admin))) {
       Runtime.trap("Unauthorized: Only admins can enable vacation mode");
@@ -395,7 +404,6 @@ actor {
     logEvents.add(Time.now(), newLog);
   };
 
-  // User Management - admin only
   public query ({ caller }) func getUsers() : async [UserAccess] {
     if (not (AccessControl.hasPermission(accessControlState, caller, #admin))) {
       Runtime.trap("Unauthorized: Only admins can view users");
@@ -405,7 +413,7 @@ actor {
 
   public shared ({ caller }) func addUser(user : UserAccess) : async () {
     if (not (AccessControl.hasPermission(accessControlState, caller, #admin))) {
-      Runtime.trap("Unauthorized: Only admins can perform this action");
+      Runtime.trap("Unauthorized: Only admin devices are allowed");
     };
     userAccessState.add(user.rfidUid, user);
     addLogEvent("User added " # user.name);
@@ -413,7 +421,7 @@ actor {
 
   public shared ({ caller }) func removeUser(uid : Text) : async () {
     if (not (AccessControl.hasPermission(accessControlState, caller, #admin))) {
-      Runtime.trap("Unauthorized: Only admins can perform this action");
+      Runtime.trap("Unauthorized: Only admin devices are allowed");
     };
     if (not userAccessState.containsKey(uid)) {
       Runtime.trap("User does not exist.");
@@ -424,7 +432,7 @@ actor {
 
   public shared ({ caller }) func disableUser(uid : Text) : async () {
     if (not (AccessControl.hasPermission(accessControlState, caller, #admin))) {
-      Runtime.trap("Unauthorized: Only admins can perform this action");
+      Runtime.trap("Unauthorized: Only admin devices are allowed");
     };
     switch (userAccessState.get(uid)) {
       case (null) { Runtime.trap("User does not exist.") };
@@ -443,7 +451,7 @@ actor {
 
   public shared ({ caller }) func enableUser(uid : Text) : async () {
     if (not (AccessControl.hasPermission(accessControlState, caller, #admin))) {
-      Runtime.trap("Unauthorized: Only admins can perform this action");
+      Runtime.trap("Unauthorized: Only admin devices are allowed");
     };
     switch (userAccessState.get(uid)) {
       case (null) { Runtime.trap("User does not exist.") };
@@ -460,7 +468,6 @@ actor {
     };
   };
 
-  // Set recurring access window schedule for a user - admin only
   public shared ({ caller }) func setUserAccessWindow(uid : Text, accessWindow : [TimeSlot]) : async () {
     if (not (AccessControl.hasPermission(accessControlState, caller, #admin))) {
       Runtime.trap("Unauthorized: Only admins can set user access windows");
@@ -480,7 +487,6 @@ actor {
     };
   };
 
-  // Get access window for a specific user - admin only
   public query ({ caller }) func getUserAccessWindow(uid : Text) : async [TimeSlot] {
     if (not (AccessControl.hasPermission(accessControlState, caller, #admin))) {
       Runtime.trap("Unauthorized: Only admins can view user access windows");
@@ -491,9 +497,6 @@ actor {
     };
   };
 
-  // Record an access event - admin only (used by access log simulation)
-  // The caller (admin/system) is responsible for checking the access window
-  // and marking the event as unauthorized if outside the window.
   public shared ({ caller }) func recordAccessEvent(event : AccessEvent) : async () {
     if (not (AccessControl.hasPermission(accessControlState, caller, #admin))) {
       Runtime.trap("Unauthorized: Only admins can record access events");
@@ -503,8 +506,6 @@ actor {
     addLogEvent("Access event recorded for " # event.userEmail # ": " # statusText # " via " # event.method);
   };
 
-  // Simulate an access attempt - checks access window and records the event
-  // Admin only: simulates the door controller logic
   public shared ({ caller }) func simulateAccessAttempt(
     rfidUid : Text,
     userEmail : Text,
@@ -521,10 +522,8 @@ actor {
     var authorized = false;
     var withinWindow = true;
 
-    // Look up user by rfidUid
     switch (userAccessState.get(rfidUid)) {
       case (null) {
-        // Unknown user - deny
         authorized := false;
         withinWindow := false;
       };
@@ -533,7 +532,6 @@ actor {
           authorized := false;
           withinWindow := false;
         } else {
-          // Check access window if one is defined
           if (user.accessWindow.size() > 0) {
             withinWindow := false;
             for (slot in user.accessWindow.vals()) {
@@ -558,13 +556,9 @@ actor {
     };
     accessEvents.add(now, event);
 
-    let statusText = if (authorized) { "granted" } else { "denied (outside access window or inactive)" };
-    addLogEvent("Simulated access for " # userEmail # ": " # statusText);
-
     authorized;
   };
 
-  // Get all access events - admin only
   public query ({ caller }) func getAccessEvents() : async [AccessEvent] {
     if (not (AccessControl.hasPermission(accessControlState, caller, #admin))) {
       Runtime.trap("Unauthorized: Only admins can view access events");
@@ -572,7 +566,6 @@ actor {
     accessEvents.values().toArray().sort(AccessEvent.compareByTimestamp);
   };
 
-  // Get failed access events in the last 24 hours - admin only
   public query ({ caller }) func getFailedAccessEventsLast24h() : async [AccessEvent] {
     if (not (AccessControl.hasPermission(accessControlState, caller, #admin))) {
       Runtime.trap("Unauthorized: Only admins can view failed access events");
@@ -585,7 +578,6 @@ actor {
     });
   };
 
-  // Smart Rules - admin only
   public query ({ caller }) func getSmartRules() : async [SmartRule] {
     if (not (AccessControl.hasPermission(accessControlState, caller, #admin))) {
       Runtime.trap("Unauthorized: Only admins can view smart rules");
@@ -595,7 +587,7 @@ actor {
 
   public shared ({ caller }) func addSmartRule(rule : SmartRule) : async () {
     if (not (AccessControl.hasPermission(accessControlState, caller, #admin))) {
-      Runtime.trap("Unauthorized: Only admins can perform this action");
+      Runtime.trap("Unauthorized: Only admin devices are allowed");
     };
     smartRules.add(rule.ruleName, rule);
     addLogEvent("Smart rule added: " # rule.ruleName);
@@ -603,7 +595,7 @@ actor {
 
   public shared ({ caller }) func removeSmartRule(ruleName : Text) : async () {
     if (not (AccessControl.hasPermission(accessControlState, caller, #admin))) {
-      Runtime.trap("Unauthorized: Only admins can perform this action");
+      Runtime.trap("Unauthorized: Only admin devices are allowed");
     };
     if (not smartRules.containsKey(ruleName)) {
       Runtime.trap("Smart rule does not exist.");
@@ -612,7 +604,6 @@ actor {
     addLogEvent("Smart rule removed: " # ruleName);
   };
 
-  // Smart Rule Logging
   public shared ({ caller }) func logSmartRuleExecution(
     ruleName : Text,
     triggerCondition : Text,
@@ -643,7 +634,6 @@ actor {
     sortedLogs;
   };
 
-  // Event Logs - admin only
   public query ({ caller }) func getEventLogs() : async [LogEvent] {
     if (not (AccessControl.hasPermission(accessControlState, caller, #admin))) {
       Runtime.trap("Unauthorized: Only admins can view event logs");
@@ -652,7 +642,6 @@ actor {
     sortedLogs;
   };
 
-  // Legacy Device Status (for backward compatibility)
   public query ({ caller }) func getDefaultDeviceStatus() : async DeviceStatus {
     if (not (AccessControl.hasPermission(accessControlState, caller, #user))) {
       Runtime.trap("Unauthorized: Only users can view device status");
@@ -662,7 +651,7 @@ actor {
 
   public shared ({ caller }) func toggleDefaultDeviceLock() : async () {
     if (not (AccessControl.hasPermission(accessControlState, caller, #admin))) {
-      Runtime.trap("Unauthorized: Only admins can toggle device lock");
+      Runtime.trap("Unauthorized: Only admin devices are allowed");
     };
     deviceStatus := {
       deviceStatus with
@@ -672,10 +661,9 @@ actor {
     addLogEvent("Default device lock toggled: " # (if (deviceStatus.isLocked) { "locked" } else { "unlocked" }));
   };
 
-  // Holiday Monitoring
   public shared ({ caller }) func toggleHolidayLights(status : Bool) : async () {
     if (not (AccessControl.hasPermission(accessControlState, caller, #admin))) {
-      Runtime.trap("Unauthorized: Only admins can toggle holiday lights");
+      Runtime.trap("Unauthorized: Only admin devices are allowed");
     };
     if (status) {
       addLogEvent("Holiday lights enabled");
@@ -684,7 +672,6 @@ actor {
     };
   };
 
-  // Visual security feature
   public query ({ caller }) func getSecurityDecoyStatus() : async Bool {
     if (not (AccessControl.hasPermission(accessControlState, caller, #user))) {
       Runtime.trap("Unauthorized: Only users can view security status");
@@ -692,7 +679,6 @@ actor {
     false;
   };
 
-  // Admin Dashboard - admin only
   public query ({ caller }) func getAdminDashboardData() : async {
     totalUsers : Nat;
     activeUsers : Nat;
@@ -735,6 +721,96 @@ actor {
       failedAccessLast24h = failedLast24h;
       vacationMode = vacationModeActive;
       activeSmartRulesCount = activeRules;
+    };
+  };
+
+  // Todos specific code
+  public shared ({ caller }) func createTodo(title : Text, description : Text) : async Nat {
+    if (not (AccessControl.hasPermission(accessControlState, caller, #user))) {
+      Runtime.trap("Unauthorized: Only users can create todos");
+    };
+
+    let newId = toDoCounter;
+    toDoCounter += 1;
+
+    let todo : ToDo = {
+      id = newId;
+      title;
+      description;
+      completed = false;
+      createdAt = Time.now();
+      owner = caller;
+    };
+
+    todos.add(newId, todo);
+    newId;
+  };
+
+  public query ({ caller }) func getTodos() : async [ToDo] {
+    if (not (AccessControl.hasPermission(accessControlState, caller, #user))) {
+      Runtime.trap("Unauthorized: Only users can view todos");
+    };
+    if (AccessControl.isAdmin(accessControlState, caller)) {
+      todos.values().toArray();
+    } else {
+      todos.values().toArray().filter(func(t : ToDo) : Bool {
+        t.owner == caller
+      });
+    };
+  };
+
+  public shared ({ caller }) func updateTodo(
+    id : Nat,
+    newTitle : ?Text,
+    newDescription : ?Text,
+    completed : ?Bool,
+  ) : async () {
+    if (not (AccessControl.hasPermission(accessControlState, caller, #user))) {
+      Runtime.trap("Unauthorized: Only users can update todos");
+    };
+
+    switch (todos.get(id)) {
+      case (null) { Runtime.trap("TODO does not exist") };
+      case (?existingTodo) {
+        if (existingTodo.owner != caller and not AccessControl.isAdmin(accessControlState, caller)) {
+          Runtime.trap("Unauthorized: You can only update your own todos");
+        };
+
+        let updatedTodo : ToDo = {
+          id = existingTodo.id;
+          title = switch (newTitle) {
+            case (?t) { t };
+            case (_) { existingTodo.title };
+          };
+          description = switch (newDescription) {
+            case (?d) { d };
+            case (_) { existingTodo.description };
+          };
+          completed = switch (completed) {
+            case (?c) { c };
+            case (_) { existingTodo.completed };
+          };
+          createdAt = existingTodo.createdAt;
+          owner = existingTodo.owner;
+        };
+
+        todos.add(id, updatedTodo);
+      };
+    };
+  };
+
+  public shared ({ caller }) func deleteTodo(id : Nat) : async () {
+    if (not (AccessControl.hasPermission(accessControlState, caller, #user))) {
+      Runtime.trap("Unauthorized: Only users can delete todos");
+    };
+    switch (todos.get(id)) {
+      case (null) { Runtime.trap("TODO does not exist") };
+      case (?existingTodo) {
+        if (existingTodo.owner != caller and not AccessControl.isAdmin(accessControlState, caller)) {
+          Runtime.trap("Unauthorized: You can only delete your own todos");
+        };
+        todos.remove(id);
+      };
     };
   };
 };

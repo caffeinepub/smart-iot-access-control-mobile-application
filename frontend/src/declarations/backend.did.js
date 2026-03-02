@@ -86,6 +86,14 @@ export const SmartRuleLog = IDL.Record({
   'outcome' : IDL.Bool,
   'actionTaken' : IDL.Text,
 });
+export const ToDo = IDL.Record({
+  'id' : IDL.Nat,
+  'title' : IDL.Text,
+  'owner' : IDL.Principal,
+  'createdAt' : IDL.Int,
+  'completed' : IDL.Bool,
+  'description' : IDL.Text,
+});
 
 export const idlService = IDL.Service({
   '_initializeAccessControlWithSecret' : IDL.Func([IDL.Text], [], []),
@@ -94,6 +102,8 @@ export const idlService = IDL.Service({
   'addUser' : IDL.Func([UserAccess], [], []),
   'assignCallerUserRole' : IDL.Func([IDL.Principal, UserRole], [], []),
   'assignDeviceToAdmin' : IDL.Func([IDL.Text], [], []),
+  'createTodo' : IDL.Func([IDL.Text, IDL.Text], [IDL.Nat], []),
+  'deleteTodo' : IDL.Func([IDL.Nat], [], []),
   'disableUser' : IDL.Func([IDL.Text], [], []),
   'disableVacationMode' : IDL.Func([], [], []),
   'enableUser' : IDL.Func([IDL.Text], [], []),
@@ -168,6 +178,7 @@ export const idlService = IDL.Service({
   'getSecurityDecoyStatus' : IDL.Func([], [IDL.Bool], ['query']),
   'getSmartRuleExecutionLog' : IDL.Func([], [IDL.Vec(SmartRuleLog)], ['query']),
   'getSmartRules' : IDL.Func([], [IDL.Vec(SmartRule)], ['query']),
+  'getTodos' : IDL.Func([], [IDL.Vec(ToDo)], ['query']),
   'getUserAccessWindow' : IDL.Func([IDL.Text], [IDL.Vec(TimeSlot)], ['query']),
   'getUserProfile' : IDL.Func(
       [IDL.Principal],
@@ -198,6 +209,11 @@ export const idlService = IDL.Service({
   'toggleDeviceLock' : IDL.Func([IDL.Text], [], []),
   'toggleHolidayLights' : IDL.Func([IDL.Bool], [], []),
   'updateDeviceStatus' : IDL.Func([IDL.Text, DeviceStatus], [], []),
+  'updateTodo' : IDL.Func(
+      [IDL.Nat, IDL.Opt(IDL.Text), IDL.Opt(IDL.Text), IDL.Opt(IDL.Bool)],
+      [],
+      [],
+    ),
 });
 
 export const idlInitArgs = [];
@@ -281,6 +297,14 @@ export const idlFactory = ({ IDL }) => {
     'outcome' : IDL.Bool,
     'actionTaken' : IDL.Text,
   });
+  const ToDo = IDL.Record({
+    'id' : IDL.Nat,
+    'title' : IDL.Text,
+    'owner' : IDL.Principal,
+    'createdAt' : IDL.Int,
+    'completed' : IDL.Bool,
+    'description' : IDL.Text,
+  });
   
   return IDL.Service({
     '_initializeAccessControlWithSecret' : IDL.Func([IDL.Text], [], []),
@@ -289,6 +313,8 @@ export const idlFactory = ({ IDL }) => {
     'addUser' : IDL.Func([UserAccess], [], []),
     'assignCallerUserRole' : IDL.Func([IDL.Principal, UserRole], [], []),
     'assignDeviceToAdmin' : IDL.Func([IDL.Text], [], []),
+    'createTodo' : IDL.Func([IDL.Text, IDL.Text], [IDL.Nat], []),
+    'deleteTodo' : IDL.Func([IDL.Nat], [], []),
     'disableUser' : IDL.Func([IDL.Text], [], []),
     'disableVacationMode' : IDL.Func([], [], []),
     'enableUser' : IDL.Func([IDL.Text], [], []),
@@ -367,6 +393,7 @@ export const idlFactory = ({ IDL }) => {
         ['query'],
       ),
     'getSmartRules' : IDL.Func([], [IDL.Vec(SmartRule)], ['query']),
+    'getTodos' : IDL.Func([], [IDL.Vec(ToDo)], ['query']),
     'getUserAccessWindow' : IDL.Func(
         [IDL.Text],
         [IDL.Vec(TimeSlot)],
@@ -401,6 +428,11 @@ export const idlFactory = ({ IDL }) => {
     'toggleDeviceLock' : IDL.Func([IDL.Text], [], []),
     'toggleHolidayLights' : IDL.Func([IDL.Bool], [], []),
     'updateDeviceStatus' : IDL.Func([IDL.Text, DeviceStatus], [], []),
+    'updateTodo' : IDL.Func(
+        [IDL.Nat, IDL.Opt(IDL.Text), IDL.Opt(IDL.Text), IDL.Opt(IDL.Bool)],
+        [],
+        [],
+      ),
   });
 };
 

@@ -1,6 +1,6 @@
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { useActor } from './useActor';
-import type { UserProfile, DeviceStatus, UserAccess, SmartRule, LogEvent, DeviceInfo, SmartRuleLog } from '../backend';
+import type { UserProfile, DeviceStatus, UserAccess, SmartRule, LogEvent, DeviceInfo, SmartRuleLog, ToDo } from '../backend';
 import type { AccessEvent } from '../types/accessEvent';
 import { toast } from 'sonner';
 
@@ -421,5 +421,107 @@ export function useUpdateDeviceFirmware() {
     onError: (error: Error) => {
       toast.error(`Firmware update failed: ${error.message}`);
     },
+  });
+}
+
+// ─── Todo Hooks ───────────────────────────────────────────────────────────────
+
+export function useGetTodos() {
+  const { actor, isFetching: actorFetching } = useActor();
+
+  return useQuery<ToDo[]>({
+    queryKey: ['todos'],
+    queryFn: async () => {
+      if (!actor) throw new Error('Actor not available');
+      return actor.getTodos();
+    },
+    enabled: !!actor && !actorFetching,
+  });
+}
+
+export function useCreateTodo() {
+  const { actor } = useActor();
+  const queryClient = useQueryClient();
+
+  return useMutation({
+    mutationFn: async ({ title, description }: { title: string; description: string }) => {
+      if (!actor) throw new Error('Actor not available');
+      return actor.createTodo(title, description);
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['todos'] });
+      toast.success('Task created successfully!');
+    },
+    onError: (error: Error) => {
+      toast.error(`Failed to create task: ${error.message}`);
+    },
+  });
+}
+
+export function useUpdateTodo() {
+  const { actor } = useActor();
+  const queryClient = useQueryClient();
+
+  return useMutation({
+    mutationFn: async ({
+      id,
+      newTitle,
+      newDescription,
+      completed,
+    }: {
+      id: bigint;
+      newTitle?: string | null;
+      newDescription?: string | null;
+      completed?: boolean | null;
+    }) => {
+      if (!actor) throw new Error('Actor not available');
+      return actor.updateTodo(
+        id,
+        newTitle ?? null,
+        newDescription ?? null,
+        completed ?? null,
+      );
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['todos'] });
+    },
+    onError: (error: Error) => {
+      toast.error(`Failed to update task: ${error.message}`);
+    },
+  });
+}
+
+export function useDeleteTodo() {
+  const { actor } = useActor();
+  const queryClient = useQueryClient();
+
+  return useMutation({
+    mutationFn: async (id: bigint) => {
+      if (!actor) throw new Error('Actor not available');
+      return actor.deleteTodo(id);
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['todos'] });
+      toast.success('Task deleted.');
+    },
+    onError: (error: Error) => {
+      toast.error(`Failed to delete task: ${error.message}`);
+    },
+  });
+}
+
+// ─── Admin Dashboard Data ─────────────────────────────────────────────────────
+
+export function useGetAdminDashboardData() {
+  const { actor, isFetching: actorFetching } = useActor();
+
+  return useQuery({
+    queryKey: ['adminDashboardData'],
+    queryFn: async () => {
+      if (!actor) throw new Error('Actor not available');
+      return actor.getAdminDashboardData();
+    },
+    enabled: !!actor && !actorFetching,
+    refetchInterval: 15000,
   });
 }

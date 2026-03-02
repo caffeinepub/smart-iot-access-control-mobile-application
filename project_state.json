@@ -1,16 +1,50 @@
 {
   "schemaVersion": "1.0.0",
   "projectStateVersion": 3,
-  "summary": "Project with color customization request",
-  "architectural_notes": [],
+  "summary": "Project with To-Do List feature and Admin Dashboard with restricted access (email: aahanvarma42@gmail.com, password: aahan123).",
+  "architectural_notes": [
+    "Admin dashboard is protected by hardcoded credentials: email aahanvarma42@gmail.com / password aahan123"
+  ],
   "known_issues": [],
   "isFixRequest": false,
   "existing_features": [
     {
-      "id": "feature-redesign-the-app-s-color-palette-with-a-fresh-cohesive-visual-theme-update-the-css-custom-properties-in-frontend-src-index-css-and-frontend-index-css-for-all-themes-dark-light-amber-cyberpunk-midnight-ocean-choose-a-distinctive-primary-accent-color-away-from-blue-purple-such-as-emerald-green-or-teal-and-apply-it-consistently-across-buttons-badges-active-states-charts-and-highlights-ensure-adequate-contrast-in-both-light-and-dark-modes",
-      "title": "Redesign the app's color palette with a fresh, cohesive visual theme. Update the CSS custom properties in frontend/src/index.css and frontend/index.css for all themes (dark, light, amber, cyberpunk, midnight, ocean). Choose a distinctive primary accent color away from blue/purple — such as emerald green or teal — and apply it consistently across buttons, badges, active states, charts, and highlights. Ensure adequate contrast in both light and dark modes.",
+      "id": "feature-add-a-to-do-list-page-in-the-frontend-at-route-todos-the-page-should-display-all-todos-fetched-via-react-query-allow-creating-new-todos-title-optional-description-marking-todos-complete-incomplete-editing-todo-titles-and-deleting-todos-show-completed-and-pending-todos-in-separate-sections",
+      "title": "Add a To-Do List page in the frontend at route /todos. The page should display all todos fetched via React Query, allow creating new todos (title + optional description), marking todos complete/incomplete, editing todo titles, and deleting todos. Show completed and pending todos in separate sections.",
       "reqIds": [
-        "REQ-1"
+        "REQ-2"
+      ],
+      "version": 1
+    },
+    {
+      "id": "feature-add-a-navigation-link-to-the-to-do-list-page-todos-in-the-header-component-alongside-existing-nav-links",
+      "title": "Add a navigation link to the To-Do List page (/todos) in the Header component alongside existing nav links.",
+      "reqIds": [
+        "REQ-3"
+      ],
+      "version": 1
+    },
+    {
+      "id": "feature-create-a-dedicated-admin-dashboard-page-at-route-admin-dashboard-separate-from-the-existing-admindashboard-tsx-if-needed-or-upgrade-it-this-page-must-be-accessible-only-when-the-user-has-authenticated-with-email-aahanvarma42-gmail-com-and-password-aahan123-implement-a-simple-credential-check-gate-show-a-login-form-email-password-fields-before-rendering-the-dashboard-content-store-the-authenticated-session-in-react-state-or-sessionstorage-so-the-gate-only-needs-to-be-passed-once-per-session",
+      "title": "Create a dedicated Admin Dashboard page at route /admin-dashboard (separate from the existing AdminDashboard.tsx if needed, or upgrade it). This page must be accessible ONLY when the user has authenticated with email aahanvarma42@gmail.com and password aahan123. Implement a simple credential check gate: show a login form (email + password fields) before rendering the dashboard content. Store the authenticated session in React state or sessionStorage so the gate only needs to be passed once per session.",
+      "reqIds": [
+        "REQ-4"
+      ],
+      "version": 1
+    },
+    {
+      "id": "feature-upgrade-the-admin-dashboard-page-content-to-include-a-to-do-monitoring-panel-showing-total-todos-completed-count-pending-count-and-a-list-of-recent-todos-across-all-users",
+      "title": "Upgrade the Admin Dashboard page content to include a To-Do monitoring panel showing total todos, completed count, pending count, and a list of recent todos across all users.",
+      "reqIds": [
+        "REQ-5"
+      ],
+      "version": 1
+    },
+    {
+      "id": "feature-add-an-admin-dashboard-route-to-the-tanstack-router-configuration-in-app-tsx-pointing-to-the-new-admin-dashboard-page-component",
+      "title": "Add an /admin-dashboard route to the TanStack Router configuration in App.tsx pointing to the new Admin Dashboard page component.",
+      "reqIds": [
+        "REQ-6"
       ],
       "version": 1
     }
@@ -18,12 +52,35 @@
   "new_feature_requests": [
     {
       "id": "AR-1",
-      "summary": "Change colors for the app",
+      "summary": "Add a To-Do List feature to the app",
       "reqIds": [],
+      "status": "pending"
+    },
+    {
+      "id": "AR-2",
+      "summary": "Add an Admin Dashboard to monitor the app, accessible only with email: aahanvarma42@gmail.com and password: aahan123",
+      "reqIds": [],
+      "status": "pending"
+    },
+    {
+      "id": "AR-3",
+      "summary": "Add a To-Do List feature to the backend: define a ToDo data type with fields for id, title, description, completed (bool), createdAt (timestamp), and optionally owner principal. Implement CRUD operations: createTodo, getTodos, updateTodo (toggle complete / edit title), deleteTodo stored in a stable map.",
+      "reqIds": [
+        "REQ-1"
+      ],
+      "status": "pending"
+    },
+    {
+      "id": "AR-9",
+      "summary": "Generate a migration.mo file to safely upgrade the existing backend stable state to include the new stable todos map without losing existing device, user, event, and rule data.",
+      "reqIds": [
+        "REQ-7"
+      ],
       "status": "pending"
     }
   ],
-  "projectName": "Smart Access Control",
+  "gameProjectType": "none",
+  "projectName": "Smart IoT Access Control",
   "clarification_mode": "instant",
   "clarification_rounds": 0
 }

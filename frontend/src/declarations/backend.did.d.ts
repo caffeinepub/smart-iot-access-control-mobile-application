@@ -66,6 +66,14 @@ export interface TimeSlot {
   'endHour' : bigint,
   'startHour' : bigint,
 }
+export interface ToDo {
+  'id' : bigint,
+  'title' : string,
+  'owner' : Principal,
+  'createdAt' : bigint,
+  'completed' : boolean,
+  'description' : string,
+}
 export interface UserAccess {
   'accessLevel' : UserRole,
   'rfidUid' : string,
@@ -93,6 +101,8 @@ export interface _SERVICE {
   'addUser' : ActorMethod<[UserAccess], undefined>,
   'assignCallerUserRole' : ActorMethod<[Principal, UserRole], undefined>,
   'assignDeviceToAdmin' : ActorMethod<[string], undefined>,
+  'createTodo' : ActorMethod<[string, string], bigint>,
+  'deleteTodo' : ActorMethod<[bigint], undefined>,
   'disableUser' : ActorMethod<[string], undefined>,
   'disableVacationMode' : ActorMethod<[], undefined>,
   'enableUser' : ActorMethod<[string], undefined>,
@@ -137,6 +147,7 @@ export interface _SERVICE {
   'getSecurityDecoyStatus' : ActorMethod<[], boolean>,
   'getSmartRuleExecutionLog' : ActorMethod<[], Array<SmartRuleLog>>,
   'getSmartRules' : ActorMethod<[], Array<SmartRule>>,
+  'getTodos' : ActorMethod<[], Array<ToDo>>,
   'getUserAccessWindow' : ActorMethod<[string], Array<TimeSlot>>,
   'getUserProfile' : ActorMethod<[Principal], [] | [UserProfile]>,
   'getUsers' : ActorMethod<[], Array<UserAccess>>,
@@ -161,6 +172,10 @@ export interface _SERVICE {
   'toggleDeviceLock' : ActorMethod<[string], undefined>,
   'toggleHolidayLights' : ActorMethod<[boolean], undefined>,
   'updateDeviceStatus' : ActorMethod<[string, DeviceStatus], undefined>,
+  'updateTodo' : ActorMethod<
+    [bigint, [] | [string], [] | [string], [] | [boolean]],
+    undefined
+  >,
 }
 export declare const idlService: IDL.ServiceClass;
 export declare const idlInitArgs: IDL.Type[];

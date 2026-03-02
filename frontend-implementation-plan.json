@@ -1,33 +1,103 @@
 {
   "kind": "implementation_plan",
   "version": "1.0",
-  "title": "Update app color scheme and themes",
+  "title": "Add To-Do List feature and Admin Dashboard with credential-based access control",
   "requirements": [
     {
-      "id": "REQ-1",
-      "summary": "Redesign app color palette with fresh cohesive theme using emerald/teal accent colors across all six themes (dark, light, amber, cyberpunk, midnight, ocean) ensuring consistent application to interactive elements and adequate contrast",
+      "id": "REQ-2",
+      "summary": "Add a To-Do List page in the frontend at route /todos with full CRUD functionality",
       "acceptanceCriteria": [
-        "All six themes in ThemeContext (dark, light, amber, cyberpunk, midnight, ocean) use the updated color tokens",
-        "Primary accent color is consistently applied to buttons, active nav links, badges, and status indicators",
-        "Both light and dark modes have sufficient contrast ratios for text readability",
-        "Tailwind config color tokens in tailwind.config.js are updated to match the new palette",
-        "No blue or purple tones appear as the primary accent unless they are part of a theme variant"
+        "Route /todos is accessible from the navigation header",
+        "User can create a new todo with title and optional description",
+        "User can toggle a todo between complete and incomplete",
+        "User can delete a todo with a confirmation step",
+        "Pending and completed todos are displayed in separate sections",
+        "All mutations use React Query and show toast feedback"
       ],
       "file_operations": [
         {
-          "path": "frontend/src/index.css",
+          "path": "frontend/src/hooks/useQueries.ts",
           "operation": "modify",
-          "description": "Replace the existing CSS custom properties for all six themes (dark, light, amber, cyberpunk, midnight, ocean) with a new color palette centered around emerald green or teal as the primary accent. Update --primary, --primary-foreground, --accent, --accent-foreground, --destructive, --muted, --card, --popover, --border, and chart color tokens. Ensure light mode uses lighter backgrounds with darker text for contrast, and dark mode uses darker backgrounds with lighter text. Remove any blue or purple accent tones from the primary color variables. Maintain adequate WCAG AA contrast ratios (4.5:1 for normal text, 3:1 for large text) across all theme variants."
+          "description": "Add React Query hooks for todo operations: useGetTodos (query hook fetching all todos via actor.getTodos), useCreateTodo (mutation hook calling actor.createTodo with title and description parameters), useUpdateTodo (mutation hook calling actor.updateTodo with id, newTitle, newDescription, and completed parameters), and useDeleteTodo (mutation hook calling actor.deleteTodo with id parameter). Each mutation hook should invalidate the 'todos' query key on success and display toast notifications."
         },
         {
-          "path": "frontend/index.css",
+          "path": "frontend/src/pages/ToDoList.tsx",
+          "operation": "create",
+          "description": "Create a new To-Do List page component that fetches all todos using useGetTodos, displays them in two separate sections (Pending and Completed), provides a form to create new todos with title and optional description fields using useCreateTodo, renders each todo with a checkbox to toggle completion status via useUpdateTodo, an inline edit button to modify the title, and a delete button with confirmation dialog using useDeleteTodo. Style the page consistently with existing pages using Tailwind classes and shadcn/ui Card components."
+        }
+      ]
+    },
+    {
+      "id": "REQ-3",
+      "summary": "Add a navigation link to the To-Do List page in the Header component",
+      "acceptanceCriteria": [
+        "Header displays a 'To-Do' or 'Tasks' nav link",
+        "Link navigates to /todos"
+      ],
+      "file_operations": [
+        {
+          "path": "frontend/src/components/layout/Header.tsx",
           "operation": "modify",
-          "description": "Update the root-level CSS custom properties to match the new color palette defined in frontend/src/index.css. Replace any blue or purple primary/accent color definitions with emerald green or teal values using OKLCH color space. Ensure the default (unthemed) variables provide good contrast and align with the redesigned color scheme."
+          "description": "Add a new navigation link labeled 'To-Do' or 'Tasks' to both the desktop navigation links array and the mobile sheet menu. The link should navigate to '/todos' using the Link component from TanStack Router. Position it between the existing nav items in a logical order (e.g., after Events and before Users)."
+        }
+      ]
+    },
+    {
+      "id": "REQ-4",
+      "summary": "Create a credential-gated Admin Dashboard page at route /admin-dashboard",
+      "acceptanceCriteria": [
+        "Navigating to /admin-dashboard shows a login form if not yet authenticated",
+        "Only credentials email=aahanvarma42@gmail.com and password=aahan123 grant access",
+        "Incorrect credentials show an error message",
+        "After successful login the admin dashboard content is shown without re-prompting in the same session",
+        "The admin dashboard displays system-wide monitoring data: device statuses, user counts, recent access events, and todo statistics"
+      ],
+      "file_operations": [
+        {
+          "path": "frontend/src/components/auth/AdminLoginGate.tsx",
+          "operation": "create",
+          "description": "Create a credential-gate component that renders a login form with email and password fields. Check credentials against the exact values email='aahanvarma42@gmail.com' and password='aahan123'. Store the authenticated session state in sessionStorage under the key 'adminDashboardAuth'. On successful authentication, render the children prop (the dashboard content). On failed authentication, display an error message below the form. If sessionStorage already contains the auth flag, render children immediately without showing the form. Style the login form using shadcn/ui Card, Input, and Button components."
         },
         {
-          "path": "frontend/tailwind.config.js",
+          "path": "frontend/src/pages/AdminDashboardCredentialGated.tsx",
+          "operation": "create",
+          "description": "Create a new Admin Dashboard page component that wraps the AdminLoginGate component around the dashboard content. Inside the gate, fetch system-wide data using useGetAdminDashboardData and useGetTodos hooks. Display stat cards showing total users, active users, device count, vacation mode status, total todos, completed todos, and pending todos. Render a grid of device status cards showing each device's battery, WiFi, lock state, and emergency mode. Display a recent access events feed. Use existing Card, Badge, and Progress components from shadcn/ui and match the styling of the existing AdminDashboard.tsx page."
+        }
+      ]
+    },
+    {
+      "id": "REQ-5",
+      "summary": "Upgrade the Admin Dashboard page content to include a To-Do monitoring panel",
+      "acceptanceCriteria": [
+        "Admin dashboard shows a stat card with total, completed, and pending todo counts",
+        "Admin dashboard shows a list of recent todos",
+        "Todo data is fetched via React Query"
+      ],
+      "file_operations": [
+        {
+          "path": "frontend/src/pages/AdminDashboardCredentialGated.tsx",
           "operation": "modify",
-          "description": "Update the extended color tokens in the theme configuration to reference the new CSS custom properties. Ensure primary, accent, destructive, muted, card, popover, and border color mappings use the updated emerald/teal palette. Verify that Tailwind utilities like bg-primary, text-accent, border-primary correctly resolve to the new color scheme. Do not change typography, spacing, or animation configurations."
+          "description": "Add a dedicated To-Do monitoring panel to the dashboard. Fetch todos via useGetTodos and compute statistics: total count, completed count (where completed is true), and pending count (where completed is false). Render a Card component with a heading 'To-Do Overview' displaying these three stats as Badge or text elements. Below the stats, display a scrollable list of the 10 most recent todos (sorted by createdAt descending), showing title, completion status, and owner principal. Use existing Card and Badge styling patterns."
+        }
+      ]
+    },
+    {
+      "id": "REQ-6",
+      "summary": "Add an /admin-dashboard route to the TanStack Router configuration in App.tsx",
+      "acceptanceCriteria": [
+        "Route /admin-dashboard is registered in the router",
+        "The route renders the credential-gated Admin Dashboard page"
+      ],
+      "file_operations": [
+        {
+          "path": "frontend/src/App.tsx",
+          "operation": "modify",
+          "description": "Import the AdminDashboardCredentialGated component. Add a new route object to the routes array in the router configuration with path '/admin-dashboard' and component AdminDashboardCredentialGated. Position the route after the existing '/automation' route. Ensure the route is included in the routeTree so it is accessible via navigation."
+        },
+        {
+          "path": "frontend/src/App.tsx",
+          "operation": "modify",
+          "description": "Import the ToDoList page component. Add a new route object to the routes array in the router configuration with path '/todos' and component ToDoList. Position the route in a logical order (e.g., after '/events'). Ensure the route is included in the routeTree."
         }
       ]
     }

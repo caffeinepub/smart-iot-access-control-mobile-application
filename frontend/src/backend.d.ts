@@ -49,6 +49,14 @@ export interface LogEvent {
     deviceId: string;
     timestamp: Time;
 }
+export interface ToDo {
+    id: bigint;
+    title: string;
+    owner: Principal;
+    createdAt: bigint;
+    completed: boolean;
+    description: string;
+}
 export interface AccessEvent {
     rfidUid: string;
     method: string;
@@ -91,6 +99,8 @@ export interface backendInterface {
     addUser(user: UserAccess): Promise<void>;
     assignCallerUserRole(user: Principal, role: UserRole): Promise<void>;
     assignDeviceToAdmin(deviceId: string): Promise<void>;
+    createTodo(title: string, description: string): Promise<bigint>;
+    deleteTodo(id: bigint): Promise<void>;
     disableUser(uid: string): Promise<void>;
     disableVacationMode(): Promise<void>;
     enableUser(uid: string): Promise<void>;
@@ -129,6 +139,7 @@ export interface backendInterface {
     getSecurityDecoyStatus(): Promise<boolean>;
     getSmartRuleExecutionLog(): Promise<Array<SmartRuleLog>>;
     getSmartRules(): Promise<Array<SmartRule>>;
+    getTodos(): Promise<Array<ToDo>>;
     getUserAccessWindow(uid: string): Promise<Array<TimeSlot>>;
     getUserProfile(user: Principal): Promise<UserProfile | null>;
     getUsers(): Promise<Array<UserAccess>>;
@@ -147,4 +158,5 @@ export interface backendInterface {
     toggleDeviceLock(deviceId: string): Promise<void>;
     toggleHolidayLights(status: boolean): Promise<void>;
     updateDeviceStatus(deviceId: string, newStatus: DeviceStatus): Promise<void>;
+    updateTodo(id: bigint, newTitle: string | null, newDescription: string | null, completed: boolean | null): Promise<void>;
 }

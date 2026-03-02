@@ -1,11 +1,11 @@
 {
-  "frontend/src/App.tsx": "Main app with routing for all pages including /admin, wraps auth logic in an AuthGate component that handles login/profile setup/onboarding without passing props to ProfileSetupModal or MainLayout.",
-  "frontend/src/hooks/useQueries.ts": "All React Query hooks for backend operations, extended with useGetAllDeviceStatuses, useGetSmartRuleExecutionLog, useLogSmartRuleExecution, and useUpdateDeviceFirmware mutations.",
+  "frontend/src/App.tsx": "Main app with routing extended to include /todos (ToDoList) and /admin-dashboard (AdminDashboardCredentialGated) routes alongside all existing routes.",
+  "frontend/src/hooks/useQueries.ts": "All React Query hooks for backend operations, now extended with useGetTodos, useCreateTodo, useUpdateTodo, useDeleteTodo todo hooks, and a shared useGetAdminDashboardData hook.",
   "frontend/src/contexts/SimulationContext.tsx": "Context provider for managing simulation mode state with localStorage persistence across sessions.",
   "frontend/src/components/auth/LoginForm.tsx": "Login page component with Internet Identity authentication, industrial dark theme styling, and lock icon branding.",
   "frontend/src/components/auth/ProfileSetupModal.tsx": "Modal for first-time user profile setup collecting name, email, and optional RFID UID after successful authentication.",
   "frontend/src/components/layout/MainLayout.tsx": "Main layout wrapper with header, footer, and background pattern providing consistent structure across all pages.",
-  "frontend/src/components/layout/Header.tsx": "Application header with full navigation, admin-only Admin Dashboard link, notification bell with unread count using useNotifications hook, theme switcher, and user dropdown with logout.",
+  "frontend/src/components/layout/Header.tsx": "Application header updated to include a \"To-Do\" nav link to /todos and a \"Monitor\" nav link to /admin-dashboard in both desktop and mobile navigation, plus a Monitor Dashboard entry in the user dropdown.",
   "frontend/src/components/layout/Footer.tsx": "Footer component displaying ESP32 academic disclaimer and caffeine.ai attribution with UTM tracking.",
   "frontend/src/pages/Dashboard.tsx": "Main dashboard page with EmergencyContactAlerts, IntrusionAlertBanner using correct `recentFailedEvent` prop, status cards with correct bigint types, and ControlButtons with required props passed only for admins.",
   "frontend/src/components/dashboard/LockStateIndicator.tsx": "Animated lock state indicator showing locked/unlocked status with color transitions and icon changes.",
@@ -24,7 +24,7 @@
   "frontend/src/pages/AutomationRules.tsx": "Automation rules page extended with the RuleExecutionHistory panel rendered below the active rules list, visible only to admin users.",
   "frontend/src/components/automation/RulesList.tsx": "List component displaying all automation rules with active status, triggers, and remove functionality.",
   "frontend/src/components/automation/AddRuleModal.tsx": "Modal form for creating new automation rules with name, action, schedule, and device ID inputs.",
-  "frontend/src/index.css": "Global styles with a redesigned OKLCH color system — dark/default theme uses emerald green (hue ~155) as primary, light theme uses a deeper emerald, amber theme uses warm gold, cyberpunk uses electric lime with magenta accent, midnight uses deep violet with rose accent, and ocean uses teal/aqua; all themes maintain WCAG AA contrast and include success/warning tokens.",
+  "frontend/src/index.css": "Global styles with OKLCH color system — all CSS custom property values now store raw channel values (e.g., `0.11 0.012 160`) instead of full `oklch(...)` expressions, so Tailwind's `oklch(var(--token))` wrappers resolve correctly. All six themes (dark, light, amber, cyberpunk, midnight, ocean) are fully populated with distinct, visible palettes.",
   "frontend/tailwind.config.js": "Tailwind configuration updated to use Exo 2/Share Tech Mono as the primary font stack, with all color tokens referencing the new OKLCH CSS variables; pulse-glow animation updated to use --primary variable for theme-aware glow effects.",
   "frontend/src/types/accessEvent.ts": "Shared local type definition for AccessEvent used across the frontend, since the backend interface does not export this type directly.",
   "frontend/src/hooks/useNotifications.ts": "Notification hook extended to assign a category ('Access Events', 'System Alerts', 'Automation') to each notification based on its type and message content.",
@@ -54,5 +54,8 @@
   "frontend/src/components/users/AccessWindowModal.tsx": "Modal dialog for admins to configure per-user recurring access windows with day-of-week checkboxes and start/end hour selectors, persisted via backend setUserAccessWindow.",
   "frontend/src/contexts/ThemeContext.tsx": "Theme context provider supporting 6 themes (dark, light, amber, cyberpunk, midnight, ocean) with localStorage persistence and data-theme attribute application.",
   "frontend/src/components/layout/ThemeSwitcher.tsx": "Theme switcher dropdown with 6 options (Dark, Light, Amber, Cyberpunk, Midnight, Ocean) each with distinct icons and descriptions.",
-  "frontend/src/pages/Settings.tsx": "Settings page with appearance, simulation mode, webhook forwarding panel, and emergency contacts panel sections."
+  "frontend/src/pages/Settings.tsx": "Settings page with appearance, simulation mode, webhook forwarding panel, and emergency contacts panel sections.",
+  "frontend/src/pages/ToDoList.tsx": "Full-featured To-Do List page with create/toggle/edit/delete functionality, split into Pending and Completed sections, using React Query hooks and shadcn/ui components with inline loading states and confirmation dialogs.",
+  "frontend/src/components/auth/AdminLoginGate.tsx": "Credential-gate component that shows a login form requiring email=aahanvarma42@gmail.com and password=aahan123, persists auth state in sessionStorage, and renders children on success.",
+  "frontend/src/pages/AdminDashboardCredentialGated.tsx": "Credential-gated admin monitoring dashboard wrapping AdminLoginGate around a full dashboard with user stats, device status grid, intrusion alerts, live event feed, system health, and a To-Do overview panel with completion progress."
 }

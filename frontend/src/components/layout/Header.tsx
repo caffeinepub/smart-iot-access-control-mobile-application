@@ -15,7 +15,8 @@ import { Badge } from '@/components/ui/badge';
 import ThemeSwitcher from './ThemeSwitcher';
 import {
   Menu, X, LogOut, User, LayoutDashboard, Activity,
-  Users, Zap, Settings, FileText, Shield, ChevronDown, Bell
+  Users, Zap, Settings, FileText, Shield, ChevronDown, Bell,
+  ClipboardList, ShieldAlert
 } from 'lucide-react';
 import { useNotifications } from '@/hooks/useNotifications';
 import NotificationDropdown from '@/components/notifications/NotificationDropdown';
@@ -50,6 +51,7 @@ const NAV_LINKS = [
   { to: '/events', label: 'Events', icon: Activity },
   { to: '/users', label: 'Users', icon: Users },
   { to: '/automation', label: 'Automation', icon: Zap },
+  { to: '/todos', label: 'To-Do', icon: ClipboardList },
   { to: '/reports', label: 'Reports', icon: FileText },
   { to: '/settings', label: 'Settings', icon: Settings },
 ];
@@ -105,6 +107,13 @@ export default function Header() {
               Admin
             </Link>
           )}
+          <Link
+            to="/admin-dashboard"
+            className="flex items-center gap-1.5 px-3 py-1.5 rounded text-sm text-muted-foreground hover:text-foreground hover:bg-muted/50 transition-colors [&.active]:text-primary [&.active]:bg-primary/10"
+          >
+            <ShieldAlert className="w-3.5 h-3.5" />
+            Monitor
+          </Link>
         </nav>
 
         <div className="flex items-center gap-2 ml-auto">
@@ -161,6 +170,13 @@ export default function Header() {
                     </Link>
                   </DropdownMenuItem>
                 )}
+                <DropdownMenuItem asChild>
+                  <Link to="/admin-dashboard" className="flex items-center gap-2 cursor-pointer">
+                    <ShieldAlert className="w-3.5 h-3.5 text-primary" />
+                    Monitor Dashboard
+                  </Link>
+                </DropdownMenuItem>
+                <DropdownMenuSeparator />
                 <DropdownMenuItem onClick={handleLogout} className="flex items-center gap-2 text-destructive cursor-pointer">
                   <LogOut className="w-3.5 h-3.5" />
                   Logout
@@ -213,6 +229,14 @@ export default function Header() {
               Admin Dashboard
             </Link>
           )}
+          <Link
+            to="/admin-dashboard"
+            onClick={() => setMobileOpen(false)}
+            className="flex items-center gap-2 px-3 py-2 rounded text-sm text-muted-foreground hover:text-foreground hover:bg-muted/50 transition-colors [&.active]:text-primary [&.active]:bg-primary/10"
+          >
+            <ShieldAlert className="w-4 h-4" />
+            Monitor Dashboard
+          </Link>
         </div>
       )}
     </header>

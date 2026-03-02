@@ -131,6 +131,14 @@ export interface LogEvent {
     deviceId: string;
     timestamp: Time;
 }
+export interface ToDo {
+    id: bigint;
+    title: string;
+    owner: Principal;
+    createdAt: bigint;
+    completed: boolean;
+    description: string;
+}
 export interface AccessEvent {
     rfidUid: string;
     method: string;
@@ -174,6 +182,8 @@ export interface backendInterface {
     addUser(user: UserAccess): Promise<void>;
     assignCallerUserRole(user: Principal, role: UserRole): Promise<void>;
     assignDeviceToAdmin(deviceId: string): Promise<void>;
+    createTodo(title: string, description: string): Promise<bigint>;
+    deleteTodo(id: bigint): Promise<void>;
     disableUser(uid: string): Promise<void>;
     disableVacationMode(): Promise<void>;
     enableUser(uid: string): Promise<void>;
@@ -212,6 +222,7 @@ export interface backendInterface {
     getSecurityDecoyStatus(): Promise<boolean>;
     getSmartRuleExecutionLog(): Promise<Array<SmartRuleLog>>;
     getSmartRules(): Promise<Array<SmartRule>>;
+    getTodos(): Promise<Array<ToDo>>;
     getUserAccessWindow(uid: string): Promise<Array<TimeSlot>>;
     getUserProfile(user: Principal): Promise<UserProfile | null>;
     getUsers(): Promise<Array<UserAccess>>;
@@ -230,6 +241,7 @@ export interface backendInterface {
     toggleDeviceLock(deviceId: string): Promise<void>;
     toggleHolidayLights(status: boolean): Promise<void>;
     updateDeviceStatus(deviceId: string, newStatus: DeviceStatus): Promise<void>;
+    updateTodo(id: bigint, newTitle: string | null, newDescription: string | null, completed: boolean | null): Promise<void>;
 }
 import type { DeviceStatus as _DeviceStatus, TimeSlot as _TimeSlot, UserAccess as _UserAccess, UserProfile as _UserProfile, UserRole as _UserRole } from "./declarations/backend.did.d.ts";
 export class Backend implements backendInterface {
@@ -315,6 +327,34 @@ export class Backend implements backendInterface {
             }
         } else {
             const result = await this.actor.assignDeviceToAdmin(arg0);
+            return result;
+        }
+    }
+    async createTodo(arg0: string, arg1: string): Promise<bigint> {
+        if (this.processError) {
+            try {
+                const result = await this.actor.createTodo(arg0, arg1);
+                return result;
+            } catch (e) {
+                this.processError(e);
+                throw new Error("unreachable");
+            }
+        } else {
+            const result = await this.actor.createTodo(arg0, arg1);
+            return result;
+        }
+    }
+    async deleteTodo(arg0: bigint): Promise<void> {
+        if (this.processError) {
+            try {
+                const result = await this.actor.deleteTodo(arg0);
+                return result;
+            } catch (e) {
+                this.processError(e);
+                throw new Error("unreachable");
+            }
+        } else {
+            const result = await this.actor.deleteTodo(arg0);
             return result;
         }
     }
@@ -642,6 +682,20 @@ export class Backend implements backendInterface {
             return result;
         }
     }
+    async getTodos(): Promise<Array<ToDo>> {
+        if (this.processError) {
+            try {
+                const result = await this.actor.getTodos();
+                return result;
+            } catch (e) {
+                this.processError(e);
+                throw new Error("unreachable");
+            }
+        } else {
+            const result = await this.actor.getTodos();
+            return result;
+        }
+    }
     async getUserAccessWindow(arg0: string): Promise<Array<TimeSlot>> {
         if (this.processError) {
             try {
@@ -894,6 +948,20 @@ export class Backend implements backendInterface {
             return result;
         }
     }
+    async updateTodo(arg0: bigint, arg1: string | null, arg2: string | null, arg3: boolean | null): Promise<void> {
+        if (this.processError) {
+            try {
+                const result = await this.actor.updateTodo(arg0, to_candid_opt_n12(this._uploadFile, this._downloadFile, arg1), to_candid_opt_n12(this._uploadFile, this._downloadFile, arg2), to_candid_opt_n13(this._uploadFile, this._downloadFile, arg3));
+                return result;
+            } catch (e) {
+                this.processError(e);
+                throw new Error("unreachable");
+            }
+        } else {
+            const result = await this.actor.updateTodo(arg0, to_candid_opt_n12(this._uploadFile, this._downloadFile, arg1), to_candid_opt_n12(this._uploadFile, this._downloadFile, arg2), to_candid_opt_n13(this._uploadFile, this._downloadFile, arg3));
+            return result;
+        }
+    }
 }
 function from_candid_UserAccess_n10(_uploadFile: (file: ExternalBlob) => Promise<Uint8Array>, _downloadFile: (file: Uint8Array) => Promise<ExternalBlob>, value: _UserAccess): UserAccess {
     return from_candid_record_n11(_uploadFile, _downloadFile, value);
@@ -960,6 +1028,12 @@ function to_candid_UserAccess_n1(_uploadFile: (file: ExternalBlob) => Promise<Ui
 }
 function to_candid_UserRole_n3(_uploadFile: (file: ExternalBlob) => Promise<Uint8Array>, _downloadFile: (file: Uint8Array) => Promise<ExternalBlob>, value: UserRole): _UserRole {
     return to_candid_variant_n4(_uploadFile, _downloadFile, value);
+}
+function to_candid_opt_n12(_uploadFile: (file: ExternalBlob) => Promise<Uint8Array>, _downloadFile: (file: Uint8Array) => Promise<ExternalBlob>, value: string | null): [] | [string] {
+    return value === null ? candid_none() : candid_some(value);
+}
+function to_candid_opt_n13(_uploadFile: (file: ExternalBlob) => Promise<Uint8Array>, _downloadFile: (file: Uint8Array) => Promise<ExternalBlob>, value: boolean | null): [] | [boolean] {
+    return value === null ? candid_none() : candid_some(value);
 }
 function to_candid_record_n2(_uploadFile: (file: ExternalBlob) => Promise<Uint8Array>, _downloadFile: (file: Uint8Array) => Promise<ExternalBlob>, value: {
     accessLevel: UserRole;

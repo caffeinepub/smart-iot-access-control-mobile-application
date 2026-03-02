@@ -19,6 +19,8 @@ import AutomationRules from '@/pages/AutomationRules';
 import Settings from '@/pages/Settings';
 import Reports from '@/pages/Reports';
 import AdminDashboard from '@/pages/AdminDashboard';
+import ToDoList from '@/pages/ToDoList';
+import AdminDashboardCredentialGated from '@/pages/AdminDashboardCredentialGated';
 
 const queryClient = new QueryClient({
   defaultOptions: {
@@ -136,6 +138,18 @@ const adminRoute = createRoute({
   component: AdminDashboard,
 });
 
+const todosRoute = createRoute({
+  getParentRoute: () => rootRoute,
+  path: '/todos',
+  component: ToDoList,
+});
+
+const adminDashboardCredentialGatedRoute = createRoute({
+  getParentRoute: () => rootRoute,
+  path: '/admin-dashboard',
+  component: AdminDashboardCredentialGated,
+});
+
 const routeTree = rootRoute.addChildren([
   indexRoute,
   eventMonitoringRoute,
@@ -144,6 +158,8 @@ const routeTree = rootRoute.addChildren([
   settingsRoute,
   reportsRoute,
   adminRoute,
+  todosRoute,
+  adminDashboardCredentialGatedRoute,
 ]);
 
 const router = createRouter({ routeTree });

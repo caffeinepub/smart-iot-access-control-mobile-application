@@ -2,11 +2,11 @@
   "kind": "feature_evidence_report",
   "features": [
     {
-      "featureId": "feature-redesign-the-app-s-color-palette-with-a-fresh-cohesive-visual-theme-update-the-css-custom-properties-in-frontend-src-index-css-and-frontend-index-css-for-all-themes-dark-light-amber-cyberpunk-midnight-ocean-choose-a-distinctive-primary-accent-color-away-from-blue-purple-such-as-emerald-green-or-teal-and-apply-it-consistently-across-buttons-badges-active-states-charts-and-highlights-ensure-adequate-contrast-in-both-light-and-dark-modes",
-      "featureTitle": "Redesign the app's color palette with a fresh, cohesive visual theme. Update the CSS custom properties in frontend/src/index.css and frontend/index.css for all themes (dark, light, amber, cyberpunk, midnight, ocean). Choose a distinctive primary accent color away from blue/purple — such as emerald green or teal — and apply it consistently across buttons, badges, active states, charts, and highlights. Ensure adequate contrast in both light and dark modes.",
+      "featureId": "feature-add-a-to-do-list-page-in-the-frontend-at-route-todos-the-page-should-display-all-todos-fetched-via-react-query-allow-creating-new-todos-title-optional-description-marking-todos-complete-incomplete-editing-todo-titles-and-deleting-todos-show-completed-and-pending-todos-in-separate-sections",
+      "featureTitle": "Add a To-Do List page in the frontend at route /todos. The page should display all todos fetched via React Query, allow creating new todos (title + optional description), marking todos complete/incomplete, editing todo titles, and deleting todos. Show completed and pending todos in separate sections.",
       "files": [
-        "frontend/src/index.css",
-        "frontend/tailwind.config.js"
+        "frontend/src/hooks/useQueries.ts",
+        "frontend/src/pages/ToDoList.tsx"
       ],
       "components": [
         "authorization@4.0.0",
@@ -17,7 +17,84 @@
         "github-export-icp-cli@1.0.0"
       ],
       "testIds": [
-        "REQ-1"
+        "REQ-2"
+      ],
+      "confidence": "high"
+    },
+    {
+      "featureId": "feature-add-a-navigation-link-to-the-to-do-list-page-todos-in-the-header-component-alongside-existing-nav-links",
+      "featureTitle": "Add a navigation link to the To-Do List page (/todos) in the Header component alongside existing nav links.",
+      "files": [
+        "frontend/src/components/layout/Header.tsx"
+      ],
+      "components": [
+        "authorization@4.0.0",
+        "core-infrastructure@1.0.2",
+        "shadcn-ui@1.0.0",
+        "build-template-react@1.0.0",
+        "initial-app@1.0.0",
+        "github-export-icp-cli@1.0.0"
+      ],
+      "testIds": [
+        "REQ-3"
+      ],
+      "confidence": "high"
+    },
+    {
+      "featureId": "feature-create-a-dedicated-admin-dashboard-page-at-route-admin-dashboard-separate-from-the-existing-admindashboard-tsx-if-needed-or-upgrade-it-this-page-must-be-accessible-only-when-the-user-has-authenticated-with-email-aahanvarma42-gmail-com-and-password-aahan123-implement-a-simple-credential-check-gate-show-a-login-form-email-password-fields-before-rendering-the-dashboard-content-store-the-authenticated-session-in-react-state-or-sessionstorage-so-the-gate-only-needs-to-be-passed-once-per-session",
+      "featureTitle": "Create a dedicated Admin Dashboard page at route /admin-dashboard (separate from the existing AdminDashboard.tsx if needed, or upgrade it). This page must be accessible ONLY when the user has authenticated with email aahanvarma42@gmail.com and password aahan123. Implement a simple credential check gate: show a login form (email + password fields) before rendering the dashboard content. Store the authenticated session in React state or sessionStorage so the gate only needs to be passed once per session.",
+      "files": [
+        "frontend/src/components/auth/AdminLoginGate.tsx",
+        "frontend/src/pages/AdminDashboardCredentialGated.tsx"
+      ],
+      "components": [
+        "authorization@4.0.0",
+        "core-infrastructure@1.0.2",
+        "shadcn-ui@1.0.0",
+        "build-template-react@1.0.0",
+        "initial-app@1.0.0",
+        "github-export-icp-cli@1.0.0"
+      ],
+      "testIds": [
+        "REQ-4"
+      ],
+      "confidence": "high"
+    },
+    {
+      "featureId": "feature-upgrade-the-admin-dashboard-page-content-to-include-a-to-do-monitoring-panel-showing-total-todos-completed-count-pending-count-and-a-list-of-recent-todos-across-all-users",
+      "featureTitle": "Upgrade the Admin Dashboard page content to include a To-Do monitoring panel showing total todos, completed count, pending count, and a list of recent todos across all users.",
+      "files": [
+        "frontend/src/pages/AdminDashboardCredentialGated.tsx"
+      ],
+      "components": [
+        "authorization@4.0.0",
+        "core-infrastructure@1.0.2",
+        "shadcn-ui@1.0.0",
+        "build-template-react@1.0.0",
+        "initial-app@1.0.0",
+        "github-export-icp-cli@1.0.0"
+      ],
+      "testIds": [
+        "REQ-5"
+      ],
+      "confidence": "high"
+    },
+    {
+      "featureId": "feature-add-an-admin-dashboard-route-to-the-tanstack-router-configuration-in-app-tsx-pointing-to-the-new-admin-dashboard-page-component",
+      "featureTitle": "Add an /admin-dashboard route to the TanStack Router configuration in App.tsx pointing to the new Admin Dashboard page component.",
+      "files": [
+        "frontend/src/App.tsx"
+      ],
+      "components": [
+        "authorization@4.0.0",
+        "core-infrastructure@1.0.2",
+        "shadcn-ui@1.0.0",
+        "build-template-react@1.0.0",
+        "initial-app@1.0.0",
+        "github-export-icp-cli@1.0.0"
+      ],
+      "testIds": [
+        "REQ-6"
       ],
       "confidence": "high"
     }

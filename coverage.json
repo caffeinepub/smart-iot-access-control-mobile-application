@@ -1,38 +1,109 @@
 {
   "kind": "coverage_report",
   "version": "1.0",
-  "generatedAt": "2026-03-01T11:12:55.518Z",
+  "generatedAt": "2026-03-02T19:03:14.169Z",
   "sources": {
     "buildRequest": true,
     "implementationPlan": true
   },
   "requirements": {
-    "total": 1,
-    "implemented": 1,
+    "total": 7,
+    "implemented": 5,
     "items": [
       {
         "id": "REQ-1",
-        "summary": "Redesign the app's color palette with a fresh, cohesive visual theme. Update the CSS custom properties in frontend/src/index.css and frontend/index.css for all themes (dark, light, amber, cyberpunk, midnight, ocean). Choose a distinctive primary accent color away from blue/purple — such as emerald green or teal — and apply it consistently across buttons, badges, active states, charts, and highlights. Ensure adequate contrast in both light and dark modes.",
+        "summary": "Add a To-Do List feature to the backend: define a ToDo data type with fields for id, title, description, completed (bool), createdAt (timestamp), and optionally owner principal. Implement CRUD operations: createTodo, getTodos, updateTodo (toggle complete / edit title), deleteTodo stored in a stable map.",
+        "status": "unknown",
+        "plannedFiles": [],
+        "matchedFiles": []
+      },
+      {
+        "id": "REQ-2",
+        "summary": "Add a To-Do List page in the frontend at route /todos. The page should display all todos fetched via React Query, allow creating new todos (title + optional description), marking todos complete/incomplete, editing todo titles, and deleting todos. Show completed and pending todos in separate sections.",
         "status": "implemented",
         "plannedFiles": [
-          "frontend/src/index.css",
-          "frontend/index.css",
-          "frontend/tailwind.config.js"
+          "frontend/src/hooks/useQueries.ts",
+          "frontend/src/pages/ToDoList.tsx"
         ],
         "matchedFiles": [
-          "frontend/src/index.css",
-          "frontend/tailwind.config.js"
+          "frontend/src/hooks/useQueries.ts",
+          "frontend/src/pages/ToDoList.tsx"
         ]
+      },
+      {
+        "id": "REQ-3",
+        "summary": "Add a navigation link to the To-Do List page (/todos) in the Header component alongside existing nav links.",
+        "status": "implemented",
+        "plannedFiles": [
+          "frontend/src/components/layout/Header.tsx"
+        ],
+        "matchedFiles": [
+          "frontend/src/components/layout/Header.tsx"
+        ]
+      },
+      {
+        "id": "REQ-4",
+        "summary": "Create a dedicated Admin Dashboard page at route /admin-dashboard (separate from the existing AdminDashboard.tsx if needed, or upgrade it). This page must be accessible ONLY when the user has authenticated with email aahanvarma42@gmail.com and password aahan123. Implement a simple credential check gate: show a login form (email + password fields) before rendering the dashboard content. Store the authenticated session in React state or sessionStorage so the gate only needs to be passed once per session.",
+        "status": "implemented",
+        "plannedFiles": [
+          "frontend/src/components/auth/AdminLoginGate.tsx",
+          "frontend/src/pages/AdminDashboardCredentialGated.tsx"
+        ],
+        "matchedFiles": [
+          "frontend/src/components/auth/AdminLoginGate.tsx",
+          "frontend/src/pages/AdminDashboardCredentialGated.tsx"
+        ]
+      },
+      {
+        "id": "REQ-5",
+        "summary": "Upgrade the Admin Dashboard page content to include a To-Do monitoring panel showing total todos, completed count, pending count, and a list of recent todos across all users.",
+        "status": "implemented",
+        "plannedFiles": [
+          "frontend/src/pages/AdminDashboardCredentialGated.tsx"
+        ],
+        "matchedFiles": [
+          "frontend/src/pages/AdminDashboardCredentialGated.tsx"
+        ]
+      },
+      {
+        "id": "REQ-6",
+        "summary": "Add an /admin-dashboard route to the TanStack Router configuration in App.tsx pointing to the new Admin Dashboard page component.",
+        "status": "implemented",
+        "plannedFiles": [
+          "frontend/src/App.tsx",
+          "frontend/src/App.tsx"
+        ],
+        "matchedFiles": [
+          "frontend/src/App.tsx",
+          "frontend/src/App.tsx"
+        ]
+      },
+      {
+        "id": "REQ-7",
+        "summary": "Generate a migration.mo file to safely upgrade the existing backend stable state to include the new stable todos map without losing existing device, user, event, and rule data.",
+        "status": "unknown",
+        "plannedFiles": [],
+        "matchedFiles": []
       }
     ]
   },
   "changedFiles": [
+    "backend/main.mo",
+    "backend/migration.mo",
     "build-request.json",
     "feature_evidence.json",
     "frontend-file-summaries.txt",
     "frontend-implementation-plan.json",
-    "frontend/src/index.css",
-    "frontend/tailwind.config.js",
+    "frontend/src/App.tsx",
+    "frontend/src/backend.d.ts",
+    "frontend/src/backend.ts",
+    "frontend/src/components/auth/AdminLoginGate.tsx",
+    "frontend/src/components/layout/Header.tsx",
+    "frontend/src/declarations/backend.did.d.ts",
+    "frontend/src/declarations/backend.did.js",
+    "frontend/src/hooks/useQueries.ts",
+    "frontend/src/pages/AdminDashboardCredentialGated.tsx",
+    "frontend/src/pages/ToDoList.tsx",
     "project_state.json",
     "scratch/component-selection.json",
     "spec.md",
