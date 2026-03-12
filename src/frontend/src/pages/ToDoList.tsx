@@ -32,6 +32,7 @@ interface FloatingCredit {
   amount: number;
   x: number;
   y: number;
+  negative?: boolean;
 }
 
 export default function ToDoList() {
@@ -94,7 +95,18 @@ export default function ToDoList() {
   }, [orderedTodos, search, filterPriority, filterCategory, filterStatus]);
 
   const spawnFloatingCredit = useCallback(
-    (todoId: bigint, x: number, y: number) => {
+    (todoId: bigint, x: number, y: number, negative?: boolean) => {
+      if (negative) {
+        const id = ++floatCounter.current;
+        setFloatingCredits((prev) => [
+          ...prev,
+          { id, amount: 1, x: x + 40, y: y + 30, negative: true },
+        ]);
+        setTimeout(() => {
+          setFloatingCredits((prev) => prev.filter((f) => f.id !== id));
+        }, 1000);
+        return;
+      }
       const todo = todos.find((t) => t.id.toString() === todoId.toString());
       if (!todo) return;
       const amount = PRIORITY_CREDITS[getPriorityKey(todo.priority)] ?? 10;
@@ -123,6 +135,36 @@ export default function ToDoList() {
         }
       } catch {
         toast.error("Failed to update task");
+      }
+    },
+    [updateTodo, todos, spawnFloatingCredit],
+  );
+
+  const handleCompleteWithStatus = useCallback(
+    async (id: bigint, isOverdue: boolean) => {
+      try {
+        await updateTodo.mutateAsync({ id, completed: true });
+        const todo = todos.find((t) => t.id.toString() === id.toString());
+        const amount = todo
+          ? (PRIORITY_CREDITS[getPriorityKey(todo.priority)] ?? 10)
+          : 10;
+        const x = window.innerWidth / 2;
+        const y = 200;
+        spawnFloatingCredit(id, x, y);
+        if (isOverdue) {
+          spawnFloatingCredit(id, x, y, true);
+          toast.success(
+            `+${amount} CR earned! ⚠️ -1 CR overdue penalty applied.`,
+            {
+              description:
+                "Complete tasks before their due date to avoid penalties.",
+            },
+          );
+        } else {
+          toast.success(`+${amount} CR earned! Task complete 🎯`);
+        }
+      } catch {
+        toast.error("Failed to complete task");
       }
     },
     [updateTodo, todos, spawnFloatingCredit],
@@ -218,10 +260,12 @@ export default function ToDoList() {
       {floatingCredits.map((fc) => (
         <div
           key={fc.id}
-          className="fixed pointer-events-none z-50 font-mono font-bold text-cyan-300 text-sm animate-credit-flyup"
+          className={`fixed pointer-events-none z-50 font-mono font-bold text-sm animate-credit-flyup ${
+            fc.negative ? "text-red-400" : "text-cyan-300"
+          }`}
           style={{ left: fc.x, top: fc.y }}
         >
-          +{fc.amount} CR
+          {fc.negative ? "−1 CR" : `+${fc.amount} CR`}
         </div>
       ))}
 
@@ -307,6 +351,7 @@ export default function ToDoList() {
                   onEdit={handleEdit}
                   onDelete={handleDelete}
                   onToggleComplete={handleToggleComplete}
+                  onCompleteWithStatus={handleCompleteWithStatus}
                   onToggleSubtask={handleToggleSubtask}
                   isDragging={draggedId?.toString() === todo.id.toString()}
                   onDragStart={(e) => handleDragStart(e, todo.id)}

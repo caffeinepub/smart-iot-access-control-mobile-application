@@ -12,6 +12,14 @@ import {
 } from "recharts";
 import type { ToDo } from "../../backend";
 
+const TOOLTIP_STYLE = {
+  fontSize: 11,
+  background: "#0f172a",
+  border: "1px solid rgba(0,212,255,0.2)",
+  borderRadius: "8px",
+  color: "#94a3b8",
+};
+
 interface TaskStatsPanelProps {
   todos: ToDo[];
 }
@@ -30,7 +38,8 @@ export default function TaskStatsPanel({ todos }: TaskStatsPanelProps) {
   }, [todos]);
 
   const weeklyData = useMemo(() => {
-    const days: { day: string; completed: number }[] = [];
+    const days: { day: string; completed: number; overdue: number }[] = [];
+    const now = Date.now();
     for (let i = 6; i >= 0; i--) {
       const d = new Date();
       d.setDate(d.getDate() - i);
@@ -40,14 +49,21 @@ export default function TaskStatsPanel({ todos }: TaskStatsPanelProps) {
         d.getDate(),
       ).getTime();
       const dayEnd = dayStart + 86_400_000;
-      const count = todos.filter((t) => {
+      const completed = todos.filter((t) => {
         if (!t.completed) return false;
         const created = Number(t.createdAt) / 1_000_000;
         return created >= dayStart && created < dayEnd;
       }).length;
+      const overdue = todos.filter((t) => {
+        if (t.completed) return false;
+        const due = t.dueDate ? Number(t.dueDate) / 1_000_000 : null;
+        if (!due) return false;
+        return due >= dayStart && due < dayEnd && due < now;
+      }).length;
       days.push({
         day: d.toLocaleDateString("en", { weekday: "short" }),
-        completed: count,
+        completed,
+        overdue,
       });
     }
     return days;
@@ -124,11 +140,12 @@ export default function TaskStatsPanel({ todos }: TaskStatsPanelProps) {
         </div>
       ))}
 
+      {/* Weekly completed vs overdue bar chart */}
       <div className="col-span-2 lg:col-span-4 rounded-xl border border-cyan-500/15 bg-slate-900/70 backdrop-blur-sm p-3">
         <p className="text-[9px] font-mono text-slate-500 uppercase tracking-widest mb-2">
-          Completion Radar — Last 7 Days
+          Task Radar — Last 7 Days (Completed vs Overdue)
         </p>
-        <ResponsiveContainer width="100%" height={60}>
+        <ResponsiveContainer width="100%" height={80}>
           <BarChart
             data={weeklyData}
             margin={{ top: 0, right: 0, left: -30, bottom: 0 }}
@@ -141,25 +158,29 @@ export default function TaskStatsPanel({ todos }: TaskStatsPanelProps) {
               tick={{ fontSize: 9, fill: "#64748b" }}
               allowDecimals={false}
             />
-            <Tooltip
-              contentStyle={{
-                fontSize: 11,
-                background: "#0f172a",
-                border: "1px solid rgba(0,212,255,0.2)",
-                borderRadius: "8px",
-                color: "#94a3b8",
-              }}
-            />
-            <Bar dataKey="completed" radius={[3, 3, 0, 0]}>
+            <Tooltip contentStyle={TOOLTIP_STYLE} />
+            <Bar dataKey="completed" name="Completed" radius={[3, 3, 0, 0]}>
               {weeklyData.map((entry, index) => (
-                <Cell
-                  key={entry.day || String(index)}
-                  fill="rgba(0,212,255,0.7)"
-                />
+                <Cell key={entry.day || String(index)} fill="#22c55e" />
+              ))}
+            </Bar>
+            <Bar dataKey="overdue" name="Overdue" radius={[3, 3, 0, 0]}>
+              {weeklyData.map((entry, index) => (
+                <Cell key={entry.day || String(index)} fill="#ef4444" />
               ))}
             </Bar>
           </BarChart>
         </ResponsiveContainer>
+        <div className="flex gap-4 mt-1">
+          <span className="flex items-center gap-1 text-[9px] font-mono text-green-400">
+            <span className="w-2 h-2 rounded-sm bg-green-500 inline-block" />{" "}
+            Completed
+          </span>
+          <span className="flex items-center gap-1 text-[9px] font-mono text-red-400">
+            <span className="w-2 h-2 rounded-sm bg-red-500 inline-block" />{" "}
+            Overdue
+          </span>
+        </div>
       </div>
     </div>
   );

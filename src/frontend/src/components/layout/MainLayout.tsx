@@ -1,3 +1,4 @@
+import AIAssistant from "@/components/ai/AIAssistant";
 import { Outlet } from "@tanstack/react-router";
 import DynamicBackground from "./DynamicBackground";
 import Footer from "./Footer";
@@ -14,6 +15,7 @@ export default function MainLayout() {
         </main>
         <Footer />
       </div>
+      <AIAssistant />
     </div>
   );
 }

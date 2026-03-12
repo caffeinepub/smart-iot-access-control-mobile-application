@@ -20,6 +20,18 @@ import {
   groupEventsByUser,
 } from "../../utils/analyticsUtils";
 
+const TOOLTIP_STYLE = {
+  background: "#0f172a",
+  border: "1px solid rgba(0,212,255,0.25)",
+  borderRadius: "8px",
+  color: "#94a3b8",
+  fontSize: "12px",
+};
+
+const COLOR_SUCCESS = "#22c55e";
+const COLOR_FAIL = "#ef4444";
+const COLOR_ACCENT = "#06b6d4";
+
 interface AdvancedAnalyticsProps {
   events: AccessEvent[];
 }
@@ -47,29 +59,19 @@ export default function AdvancedAnalytics({ events }: AdvancedAnalyticsProps) {
             >
               <CartesianGrid
                 strokeDasharray="3 3"
-                stroke="oklch(var(--border))"
+                stroke="rgba(148,163,184,0.1)"
               />
               <XAxis
                 dataKey="date"
-                tick={{ fontSize: 10, fill: "oklch(var(--muted-foreground))" }}
+                tick={{ fontSize: 10, fill: "#64748b" }}
                 interval={4}
               />
-              <YAxis
-                tick={{ fontSize: 10, fill: "oklch(var(--muted-foreground))" }}
-              />
-              <Tooltip
-                contentStyle={{
-                  background: "oklch(var(--popover))",
-                  border: "1px solid oklch(var(--border))",
-                  borderRadius: "8px",
-                  color: "oklch(var(--foreground))",
-                  fontSize: "12px",
-                }}
-              />
+              <YAxis tick={{ fontSize: 10, fill: "#64748b" }} />
+              <Tooltip contentStyle={TOOLTIP_STYLE} />
               <Line
                 type="monotone"
                 dataKey="count"
-                stroke="oklch(var(--accent))"
+                stroke={COLOR_ACCENT}
                 strokeWidth={2}
                 dot={false}
                 name="Access Events"
@@ -102,45 +104,29 @@ export default function AdvancedAnalytics({ events }: AdvancedAnalyticsProps) {
                   >
                     <CartesianGrid
                       strokeDasharray="3 3"
-                      stroke="oklch(var(--border))"
+                      stroke="rgba(148,163,184,0.1)"
                     />
                     <XAxis
                       dataKey="userEmail"
-                      tick={{
-                        fontSize: 9,
-                        fill: "oklch(var(--muted-foreground))",
-                      }}
+                      tick={{ fontSize: 9, fill: "#64748b" }}
                       angle={-30}
                       textAnchor="end"
                       interval={0}
                     />
-                    <YAxis
-                      tick={{
-                        fontSize: 10,
-                        fill: "oklch(var(--muted-foreground))",
-                      }}
-                    />
-                    <Tooltip
-                      contentStyle={{
-                        background: "oklch(var(--popover))",
-                        border: "1px solid oklch(var(--border))",
-                        borderRadius: "8px",
-                        color: "oklch(var(--foreground))",
-                        fontSize: "12px",
-                      }}
-                    />
+                    <YAxis tick={{ fontSize: 10, fill: "#64748b" }} />
+                    <Tooltip contentStyle={TOOLTIP_STYLE} />
                     <Legend wrapperStyle={{ fontSize: "11px" }} />
                     <Bar
                       dataKey="successCount"
                       name="Success"
                       stackId="a"
-                      fill="oklch(var(--success))"
+                      fill={COLOR_SUCCESS}
                     />
                     <Bar
                       dataKey="failureCount"
                       name="Failure"
                       stackId="a"
-                      fill="oklch(var(--destructive))"
+                      fill={COLOR_FAIL}
                       radius={[4, 4, 0, 0]}
                     />
                   </BarChart>
@@ -190,9 +176,10 @@ export default function AdvancedAnalytics({ events }: AdvancedAnalyticsProps) {
                     </div>
                     <div className="h-1.5 bg-muted rounded-full overflow-hidden">
                       <div
-                        className="h-full bg-accent rounded-full transition-all"
+                        className="h-full rounded-full transition-all"
                         style={{
                           width: `${peakHours[0].count > 0 ? (ph.count / peakHours[0].count) * 100 : 0}%`,
+                          background: COLOR_ACCENT,
                         }}
                       />
                     </div>

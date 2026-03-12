@@ -5,6 +5,7 @@ import { Progress } from "@/components/ui/progress";
 import {
   AlertTriangle,
   Calendar,
+  CheckCircle2,
   ChevronDown,
   ChevronUp,
   Clock,
@@ -137,6 +138,7 @@ interface TaskCardProps {
   onEdit: (todo: ToDo) => void;
   onDelete: (id: bigint) => void;
   onToggleComplete: (id: bigint, completed: boolean) => void;
+  onCompleteWithStatus?: (id: bigint, isOverdue: boolean) => void;
   onToggleSubtask: (
     todoId: bigint,
     subtaskId: bigint,
@@ -154,6 +156,7 @@ export default function TaskCard({
   onEdit,
   onDelete,
   onToggleComplete,
+  onCompleteWithStatus,
   onToggleSubtask,
   isDragging,
   onDragStart,
@@ -174,11 +177,19 @@ export default function TaskCard({
   const dueDate = todo.dueDate
     ? new Date(Number(todo.dueDate) / 1_000_000)
     : null;
-  const isOverdue = dueDate && dueDate < new Date() && !todo.completed;
+  const isOverdue = !!(dueDate && dueDate < new Date() && !todo.completed);
 
   const timerSecs = todo.timerSeconds ? Number(todo.timerSeconds) : null;
 
   const ocidBase = `todo.item.${index}`;
+
+  const handleMarkComplete = () => {
+    if (onCompleteWithStatus) {
+      onCompleteWithStatus(todo.id, isOverdue);
+    } else {
+      onToggleComplete(todo.id, true);
+    }
+  };
 
   return (
     <div
@@ -347,6 +358,30 @@ export default function TaskCard({
                       </div>
                     ))}
                   </div>
+                )}
+              </div>
+            )}
+
+            {/* Mark Complete Button — only for incomplete tasks */}
+            {!todo.completed && (
+              <div className="mt-3">
+                <Button
+                  data-ocid={`todo.confirm_button.${index}`}
+                  onClick={handleMarkComplete}
+                  className="w-full py-1.5 text-xs font-mono bg-green-500/10 border border-green-500/30 text-green-400 hover:bg-green-500/20 hover:text-green-300 hover:border-green-400/50 transition-all duration-200 uppercase tracking-wider h-auto"
+                  variant="ghost"
+                >
+                  <CheckCircle2 className="w-3.5 h-3.5 mr-1.5 shrink-0" />
+                  Mark Complete
+                  <span className="ml-1.5 text-cyan-400 font-bold">
+                    +{creditReward} CR
+                  </span>
+                </Button>
+                {isOverdue && (
+                  <p className="text-[10px] text-red-400 font-mono text-center mt-1 flex items-center justify-center gap-1">
+                    <AlertTriangle className="w-3 h-3" />
+                    −1 CR overdue penalty will be applied
+                  </p>
                 )}
               </div>
             )}
