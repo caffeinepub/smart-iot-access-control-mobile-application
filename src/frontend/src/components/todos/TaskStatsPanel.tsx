@@ -1,10 +1,10 @@
-import { Card, CardContent } from "@/components/ui/card";
 import { Progress } from "@/components/ui/progress";
 import { AlertTriangle, CheckCircle2, Clock, ListTodo } from "lucide-react";
 import { useMemo } from "react";
 import {
   Bar,
   BarChart,
+  Cell,
   ResponsiveContainer,
   Tooltip,
   XAxis,
@@ -53,83 +53,114 @@ export default function TaskStatsPanel({ todos }: TaskStatsPanelProps) {
     return days;
   }, [todos]);
 
+  const metricCards = [
+    {
+      label: "TOTAL",
+      value: stats.total,
+      icon: <ListTodo className="w-4 h-4" />,
+      color: "text-cyan-400",
+      bg: "bg-cyan-500/10 border-cyan-500/20",
+      glow: "shadow-[0_0_8px_rgba(0,212,255,0.15)]",
+    },
+    {
+      label: "DONE",
+      value: stats.completed,
+      icon: <CheckCircle2 className="w-4 h-4" />,
+      color: "text-green-400",
+      bg: "bg-green-500/10 border-green-500/20",
+      glow: "shadow-[0_0_8px_rgba(34,197,94,0.15)]",
+    },
+    {
+      label: "PROGRESS",
+      value: null,
+      icon: <Clock className="w-4 h-4" />,
+      color: "text-purple-400",
+      bg: "bg-purple-500/10 border-purple-500/20",
+      glow: "shadow-[0_0_8px_rgba(168,85,247,0.15)]",
+      extra: (
+        <div className="mt-1">
+          <span className="font-mono font-bold text-xl text-purple-300">
+            {stats.completionPct}%
+          </span>
+          <Progress
+            value={stats.completionPct}
+            className="h-1.5 mt-1 [&>div]:bg-purple-500"
+          />
+        </div>
+      ),
+    },
+    {
+      label: "OVERDUE",
+      value: stats.overdue,
+      icon: <AlertTriangle className="w-4 h-4" />,
+      color: "text-red-400",
+      bg: "bg-red-500/10 border-red-500/20",
+      glow: "shadow-[0_0_8px_rgba(239,68,68,0.15)]",
+    },
+  ];
+
   return (
     <div className="grid grid-cols-2 lg:grid-cols-4 gap-3 mb-4">
-      <Card className="bg-card/70 backdrop-blur-sm border-border/50">
-        <CardContent className="p-3 flex items-center gap-3">
-          <div className="p-2 rounded-lg bg-primary/10">
-            <ListTodo className="w-4 h-4 text-primary" />
-          </div>
-          <div>
-            <p className="text-xs text-muted-foreground">Total</p>
-            <p className="text-xl font-bold">{stats.total}</p>
-          </div>
-        </CardContent>
-      </Card>
-
-      <Card className="bg-card/70 backdrop-blur-sm border-border/50">
-        <CardContent className="p-3 flex items-center gap-3">
-          <div className="p-2 rounded-lg bg-green-500/10">
-            <CheckCircle2 className="w-4 h-4 text-green-500" />
-          </div>
-          <div>
-            <p className="text-xs text-muted-foreground">Completed</p>
-            <p className="text-xl font-bold">{stats.completed}</p>
-          </div>
-        </CardContent>
-      </Card>
-
-      <Card className="bg-card/70 backdrop-blur-sm border-border/50">
-        <CardContent className="p-3">
+      {metricCards.map((m) => (
+        <div
+          key={m.label}
+          className={`rounded-xl border p-3 backdrop-blur-sm bg-slate-900/70 ${m.bg} ${m.glow} transition-shadow`}
+        >
           <div className="flex items-center gap-2 mb-1">
-            <Clock className="w-3.5 h-3.5 text-primary" />
-            <p className="text-xs text-muted-foreground">Progress</p>
-          </div>
-          <p className="text-xl font-bold mb-1">{stats.completionPct}%</p>
-          <Progress value={stats.completionPct} className="h-1.5" />
-        </CardContent>
-      </Card>
-
-      <Card className="bg-card/70 backdrop-blur-sm border-border/50">
-        <CardContent className="p-3 flex items-center gap-3">
-          <div className="p-2 rounded-lg bg-red-500/10">
-            <AlertTriangle className="w-4 h-4 text-red-500" />
-          </div>
-          <div>
-            <p className="text-xs text-muted-foreground">Overdue</p>
-            <p className="text-xl font-bold text-red-500">{stats.overdue}</p>
-          </div>
-        </CardContent>
-      </Card>
-
-      <Card className="col-span-2 lg:col-span-4 bg-card/70 backdrop-blur-sm border-border/50">
-        <CardContent className="p-3">
-          <p className="text-xs text-muted-foreground mb-2">
-            Completions — Last 7 Days
-          </p>
-          <ResponsiveContainer width="100%" height={60}>
-            <BarChart
-              data={weeklyData}
-              margin={{ top: 0, right: 0, left: -30, bottom: 0 }}
+            <span className={m.color}>{m.icon}</span>
+            <span
+              className={`text-[9px] font-mono uppercase tracking-widest ${m.color}`}
             >
-              <XAxis dataKey="day" tick={{ fontSize: 10 }} />
-              <YAxis tick={{ fontSize: 10 }} allowDecimals={false} />
-              <Tooltip
-                contentStyle={{
-                  fontSize: 11,
-                  background: "hsl(var(--card))",
-                  border: "1px solid hsl(var(--border))",
-                }}
-              />
-              <Bar
-                dataKey="completed"
-                fill="oklch(var(--primary))"
-                radius={[2, 2, 0, 0]}
-              />
-            </BarChart>
-          </ResponsiveContainer>
-        </CardContent>
-      </Card>
+              {m.label}
+            </span>
+          </div>
+          {m.extra ?? (
+            <p
+              className={`font-mono font-bold text-2xl ${m.color} drop-shadow-[0_0_6px_currentColor]`}
+            >
+              {m.value}
+            </p>
+          )}
+        </div>
+      ))}
+
+      <div className="col-span-2 lg:col-span-4 rounded-xl border border-cyan-500/15 bg-slate-900/70 backdrop-blur-sm p-3">
+        <p className="text-[9px] font-mono text-slate-500 uppercase tracking-widest mb-2">
+          Completion Radar — Last 7 Days
+        </p>
+        <ResponsiveContainer width="100%" height={60}>
+          <BarChart
+            data={weeklyData}
+            margin={{ top: 0, right: 0, left: -30, bottom: 0 }}
+          >
+            <XAxis
+              dataKey="day"
+              tick={{ fontSize: 9, fill: "#64748b", fontFamily: "monospace" }}
+            />
+            <YAxis
+              tick={{ fontSize: 9, fill: "#64748b" }}
+              allowDecimals={false}
+            />
+            <Tooltip
+              contentStyle={{
+                fontSize: 11,
+                background: "#0f172a",
+                border: "1px solid rgba(0,212,255,0.2)",
+                borderRadius: "8px",
+                color: "#94a3b8",
+              }}
+            />
+            <Bar dataKey="completed" radius={[3, 3, 0, 0]}>
+              {weeklyData.map((entry, index) => (
+                <Cell
+                  key={entry.day || String(index)}
+                  fill="rgba(0,212,255,0.7)"
+                />
+              ))}
+            </Bar>
+          </BarChart>
+        </ResponsiveContainer>
+      </div>
     </div>
   );
 }

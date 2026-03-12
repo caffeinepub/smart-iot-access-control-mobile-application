@@ -217,3 +217,24 @@
 .animate-pulse-glow {
   animation: pulse-glow 2s ease-in-out infinite;
 }
+
+/* Credit flyup animation */
+@keyframes credit-flyup {
+  0% {
+    opacity: 1;
+    transform: translateY(0) translateX(-50%) scale(1);
+  }
+  60% {
+    opacity: 1;
+    transform: translateY(-40px) translateX(-50%) scale(1.2);
+  }
+  100% {
+    opacity: 0;
+    transform: translateY(-80px) translateX(-50%) scale(0.9);
+  }
+}
+
+.animate-credit-flyup {
+  animation: credit-flyup 1s ease-out forwards;
+  text-shadow: 0 0 12px rgba(0, 212, 255, 0.9);
+}

@@ -1,6 +1,5 @@
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
-import { Card, CardContent } from "@/components/ui/card";
 import { Checkbox } from "@/components/ui/checkbox";
 import { Progress } from "@/components/ui/progress";
 import {
@@ -10,6 +9,7 @@ import {
   ChevronUp,
   Clock,
   Edit2,
+  GripVertical,
   Pause,
   Play,
   RotateCcw,
@@ -21,34 +21,33 @@ import { toast } from "sonner";
 import type { Subtask, ToDo } from "../../backend";
 import { formatTime, useTaskTimer } from "../../hooks/useTaskTimer";
 
-interface TaskCardProps {
-  todo: ToDo;
-  onEdit: (todo: ToDo) => void;
-  onDelete: (id: bigint) => void;
-  onToggleComplete: (id: bigint, completed: boolean) => void;
-  onToggleSubtask: (
-    todoId: bigint,
-    subtaskId: bigint,
-    completed: boolean,
-  ) => void;
-  isDragging?: boolean;
-  onDragStart?: (e: React.DragEvent) => void;
-  onDragOver?: (e: React.DragEvent) => void;
-  onDrop?: (e: React.DragEvent) => void;
-}
+const PRIORITY_CREDITS: Record<string, number> = {
+  high: 30,
+  medium: 20,
+  low: 10,
+};
 
 const priorityConfig = {
   high: {
-    label: "High",
-    className: "bg-red-500/20 text-red-400 border-red-500/30",
+    label: "HIGH",
+    badgeClass:
+      "bg-red-500/15 text-red-400 border-red-500/40 font-mono uppercase tracking-wider text-[9px]",
+    cardGlow:
+      "border-red-500/30 hover:border-red-400/50 hover:shadow-[0_0_15px_rgba(239,68,68,0.15)]",
   },
   medium: {
-    label: "Medium",
-    className: "bg-yellow-500/20 text-yellow-400 border-yellow-500/30",
+    label: "MED",
+    badgeClass:
+      "bg-amber-500/15 text-amber-400 border-amber-500/40 font-mono uppercase tracking-wider text-[9px]",
+    cardGlow:
+      "border-amber-500/30 hover:border-amber-400/50 hover:shadow-[0_0_15px_rgba(245,158,11,0.15)]",
   },
   low: {
-    label: "Low",
-    className: "bg-green-500/20 text-green-400 border-green-500/30",
+    label: "LOW",
+    badgeClass:
+      "bg-green-500/15 text-green-400 border-green-500/40 font-mono uppercase tracking-wider text-[9px]",
+    cardGlow:
+      "border-green-500/30 hover:border-green-400/50 hover:shadow-[0_0_15px_rgba(34,197,94,0.15)]",
   },
 };
 
@@ -88,18 +87,20 @@ function TimerDisplay({ todoId, timerSeconds }: TimerDisplayProps) {
 
   return (
     <div
-      className={`flex items-center gap-2 text-sm font-mono ${isLow ? "text-red-400" : "text-muted-foreground"}`}
+      className={`flex items-center gap-2 text-sm font-mono ${
+        isLow ? "text-red-400" : "text-slate-400"
+      }`}
     >
       <Clock className="w-3.5 h-3.5" />
       <span className={isExpired ? "text-red-500 font-bold" : ""}>
-        {isExpired ? "Expired" : formatTime(remaining)}
+        {isExpired ? "EXPIRED" : formatTime(remaining)}
       </span>
       {!isExpired && (
         <>
           <Button
             variant="ghost"
             size="icon"
-            className="h-6 w-6"
+            className="h-6 w-6 text-slate-400 hover:text-cyan-400"
             onClick={isRunning ? stop : start}
           >
             {isRunning ? (
@@ -111,7 +112,7 @@ function TimerDisplay({ todoId, timerSeconds }: TimerDisplayProps) {
           <Button
             variant="ghost"
             size="icon"
-            className="h-6 w-6"
+            className="h-6 w-6 text-slate-400 hover:text-cyan-400"
             onClick={reset}
           >
             <RotateCcw className="w-3 h-3" />
@@ -121,15 +122,35 @@ function TimerDisplay({ todoId, timerSeconds }: TimerDisplayProps) {
       <div className="w-16">
         <Progress
           value={percentRemaining}
-          className={`h-1 ${isLow ? "[&>div]:bg-red-500" : ""}`}
+          className={`h-1 ${
+            isLow ? "[&>div]:bg-red-500" : "[&>div]:bg-cyan-500"
+          }`}
         />
       </div>
     </div>
   );
 }
 
+interface TaskCardProps {
+  todo: ToDo;
+  index: number;
+  onEdit: (todo: ToDo) => void;
+  onDelete: (id: bigint) => void;
+  onToggleComplete: (id: bigint, completed: boolean) => void;
+  onToggleSubtask: (
+    todoId: bigint,
+    subtaskId: bigint,
+    completed: boolean,
+  ) => void;
+  isDragging?: boolean;
+  onDragStart?: (e: React.DragEvent) => void;
+  onDragOver?: (e: React.DragEvent) => void;
+  onDrop?: (e: React.DragEvent) => void;
+}
+
 export default function TaskCard({
   todo,
+  index,
   onEdit,
   onDelete,
   onToggleComplete,
@@ -143,6 +164,7 @@ export default function TaskCard({
 
   const priorityKey = getPriorityKey(todo.priority);
   const pConfig = priorityConfig[priorityKey];
+  const creditReward = PRIORITY_CREDITS[priorityKey];
 
   const completedSubtasks = todo.subtasks.filter(
     (s: Subtask) => s.completed,
@@ -156,44 +178,78 @@ export default function TaskCard({
 
   const timerSecs = todo.timerSeconds ? Number(todo.timerSeconds) : null;
 
+  const ocidBase = `todo.item.${index}`;
+
   return (
-    <Card
+    <div
+      data-ocid={ocidBase}
       draggable
       onDragStart={onDragStart}
       onDragOver={onDragOver}
       onDrop={onDrop}
-      className={`transition-all duration-200 cursor-grab active:cursor-grabbing border-border/50 bg-card/80 backdrop-blur-sm ${
-        isDragging
-          ? "opacity-50 scale-95"
-          : "hover:border-primary/30 hover:shadow-md"
-      } ${todo.completed ? "opacity-60" : ""}`}
+      className={`group relative transition-all duration-200 rounded-xl border bg-slate-900/80 backdrop-blur-sm cursor-grab active:cursor-grabbing ${
+        isDragging ? "opacity-50 scale-95" : pConfig.cardGlow
+      } ${todo.completed ? "opacity-50 border-slate-700/30" : ""}`}
     >
-      <CardContent className="p-4">
+      {/* Top accent line */}
+      {!todo.completed && (
+        <span
+          className={`absolute top-0 left-4 right-4 h-px opacity-60 ${
+            priorityKey === "high"
+              ? "bg-red-500"
+              : priorityKey === "medium"
+                ? "bg-amber-500"
+                : "bg-green-500"
+          }`}
+        />
+      )}
+
+      <div className="p-4">
         <div className="flex items-start gap-3">
+          {/* Drag handle */}
+          <GripVertical className="w-4 h-4 text-slate-600 mt-0.5 shrink-0 group-hover:text-slate-400 transition-colors" />
+
           <Checkbox
+            data-ocid={`todo.checkbox.${index}`}
             checked={todo.completed}
             onCheckedChange={(checked) => onToggleComplete(todo.id, !!checked)}
-            className="mt-0.5"
+            className="mt-0.5 border-slate-600 data-[state=checked]:bg-cyan-500 data-[state=checked]:border-cyan-500"
           />
+
           <div className="flex-1 min-w-0">
             <div className="flex items-start justify-between gap-2">
               <div className="flex-1">
                 <h3
-                  className={`font-medium text-sm leading-tight ${todo.completed ? "line-through text-muted-foreground" : "text-foreground"}`}
+                  className={`font-medium text-sm leading-tight ${
+                    todo.completed
+                      ? "line-through text-slate-600"
+                      : "text-slate-200"
+                  }`}
                 >
                   {todo.title}
                 </h3>
                 {todo.description && (
-                  <p className="text-xs text-muted-foreground mt-0.5 line-clamp-2">
+                  <p className="text-xs text-slate-500 mt-0.5 line-clamp-2">
                     {todo.description}
                   </p>
                 )}
               </div>
-              <div className="flex items-center gap-1 shrink-0">
+
+              {/* Right side: credit chip + actions */}
+              <div className="flex items-center gap-1.5 shrink-0">
+                {!todo.completed && (
+                  <span
+                    data-ocid={`todo.credit.badge.${index}`}
+                    className="font-mono text-[10px] font-bold text-cyan-400 bg-cyan-500/10 border border-cyan-500/25 px-1.5 py-0.5 rounded-md uppercase tracking-wider"
+                  >
+                    +{creditReward} CR
+                  </span>
+                )}
                 <Button
                   variant="ghost"
                   size="icon"
-                  className="h-7 w-7"
+                  data-ocid={`todo.edit_button.${index}`}
+                  className="h-7 w-7 text-slate-500 hover:text-cyan-400"
                   onClick={() => onEdit(todo)}
                 >
                   <Edit2 className="w-3.5 h-3.5" />
@@ -201,7 +257,8 @@ export default function TaskCard({
                 <Button
                   variant="ghost"
                   size="icon"
-                  className="h-7 w-7 text-destructive hover:text-destructive"
+                  data-ocid={`todo.delete_button.${index}`}
+                  className="h-7 w-7 text-slate-600 hover:text-red-400"
                   onClick={() => onDelete(todo.id)}
                 >
                   <Trash2 className="w-3.5 h-3.5" />
@@ -213,19 +270,21 @@ export default function TaskCard({
             <div className="flex flex-wrap items-center gap-2 mt-2">
               <Badge
                 variant="outline"
-                className={`text-xs px-1.5 py-0 ${pConfig.className}`}
+                className={`text-xs px-1.5 py-0 ${pConfig.badgeClass}`}
               >
                 {pConfig.label}
               </Badge>
               {todo.category && (
-                <span className="flex items-center gap-1 text-xs text-muted-foreground">
+                <span className="flex items-center gap-1 text-xs text-slate-500">
                   <Tag className="w-3 h-3" />
                   {todo.category}
                 </span>
               )}
               {dueDate && (
                 <span
-                  className={`flex items-center gap-1 text-xs ${isOverdue ? "text-red-400" : "text-muted-foreground"}`}
+                  className={`flex items-center gap-1 text-xs ${
+                    isOverdue ? "text-red-400" : "text-slate-500"
+                  }`}
                 >
                   {isOverdue && <AlertTriangle className="w-3 h-3" />}
                   <Calendar className="w-3 h-3" />
@@ -246,7 +305,7 @@ export default function TaskCard({
               <div className="mt-2">
                 <button
                   type="button"
-                  className="flex items-center gap-1 text-xs text-muted-foreground hover:text-foreground transition-colors"
+                  className="flex items-center gap-1 text-xs text-slate-500 hover:text-cyan-400 transition-colors font-mono"
                   onClick={() => setSubtasksExpanded(!subtasksExpanded)}
                 >
                   {subtasksExpanded ? (
@@ -259,11 +318,11 @@ export default function TaskCard({
                   </span>
                   <Progress
                     value={(completedSubtasks / totalSubtasks) * 100}
-                    className="w-12 h-1 ml-1"
+                    className="w-12 h-1 ml-1 [&>div]:bg-cyan-500"
                   />
                 </button>
                 {subtasksExpanded && (
-                  <div className="mt-2 space-y-1.5 pl-2 border-l border-border/50">
+                  <div className="mt-2 space-y-1.5 pl-2 border-l border-slate-700/50">
                     {todo.subtasks.map((subtask: Subtask) => (
                       <div
                         key={subtask.id.toString()}
@@ -274,10 +333,14 @@ export default function TaskCard({
                           onCheckedChange={(checked) =>
                             onToggleSubtask(todo.id, subtask.id, !!checked)
                           }
-                          className="h-3.5 w-3.5"
+                          className="h-3.5 w-3.5 border-slate-600 data-[state=checked]:bg-cyan-500 data-[state=checked]:border-cyan-500"
                         />
                         <span
-                          className={`text-xs ${subtask.completed ? "line-through text-muted-foreground" : "text-foreground"}`}
+                          className={`text-xs ${
+                            subtask.completed
+                              ? "line-through text-slate-600"
+                              : "text-slate-300"
+                          }`}
                         >
                           {subtask.text}
                         </span>
@@ -289,7 +352,7 @@ export default function TaskCard({
             )}
           </div>
         </div>
-      </CardContent>
-    </Card>
+      </div>
+    </div>
   );
 }
