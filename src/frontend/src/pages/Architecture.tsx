@@ -1,176 +1,136 @@
+import AnimatedDataFlow from "@/components/architecture/AnimatedDataFlow";
 import { Badge } from "@/components/ui/badge";
-import { Button } from "@/components/ui/button";
-import {
-  Card,
-  CardContent,
-  CardDescription,
-  CardHeader,
-  CardTitle,
-} from "@/components/ui/card";
-import { Layers, Network, Pause, Play } from "lucide-react";
-import { useState } from "react";
-import DataFlowAnimation from "../components/architecture/DataFlowAnimation";
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { Network } from "lucide-react";
 
 export default function Architecture() {
-  const [isLive, setIsLive] = useState(false);
-
   return (
-    <div className="container mx-auto px-4 py-8 space-y-6">
-      <div className="flex items-center justify-between">
+    <div className="p-4 md:p-6 space-y-6">
+      <div className="flex items-center gap-3">
+        <Network className="w-6 h-6 text-primary" />
         <div>
-          <h1 className="text-3xl font-bold tracking-tight flex items-center gap-3">
-            <Network className="w-8 h-8 text-accent" />
+          <h1 className="text-2xl font-bold text-foreground">
             IoT Architecture
           </h1>
-          <p className="text-muted-foreground mt-1">
-            System topology and data flow visualization
+          <p className="text-muted-foreground text-sm">
+            Animated data flow visualization
           </p>
         </div>
-        <Button
-          onClick={() => setIsLive((v) => !v)}
-          className={`gap-2 ${isLive ? "bg-destructive hover:bg-destructive/90 text-destructive-foreground" : "bg-accent hover:bg-accent/90 text-accent-foreground"}`}
+        <Badge
+          variant="outline"
+          className="ml-auto border-primary/40 text-primary font-mono text-xs"
         >
-          {isLive ? (
-            <Pause className="w-4 h-4" />
-          ) : (
-            <Play className="w-4 h-4" />
-          )}
-          {isLive ? "Stop Live Mode" : "Start Live Mode"}
-        </Button>
+          LIVE VIEW
+        </Badge>
       </div>
 
-      {/* Architecture diagram */}
-      <Card className="border-accent/20">
-        <CardHeader>
-          <div className="flex items-center justify-between">
-            <div>
-              <CardTitle className="flex items-center gap-2">
-                <Layers className="w-5 h-5 text-accent" />
-                System Architecture
-              </CardTitle>
-              <CardDescription>
-                ESP32 → ICP Backend → React Frontend
-              </CardDescription>
-            </div>
-            <Badge
-              variant="outline"
-              className={
-                isLive
-                  ? "border-success/40 text-success bg-success/10 animate-pulse"
-                  : ""
-              }
-            >
-              {isLive ? "● Live" : "○ Static"}
-            </Badge>
-          </div>
+      <Card className="border-border">
+        <CardHeader className="pb-2">
+          <CardTitle className="text-sm font-mono text-muted-foreground">
+            DATA PIPELINE FLOW
+          </CardTitle>
         </CardHeader>
         <CardContent>
-          {/* Static diagram image */}
-          <div className="relative rounded-xl overflow-hidden border border-accent/10 bg-muted/20">
-            <img
-              src="/assets/generated/iot-architecture-diagram.dim_1200x600.png"
-              alt="IoT Architecture Diagram"
-              className={`w-full object-cover transition-opacity duration-300 ${isLive ? "opacity-30" : "opacity-100"}`}
-            />
-            {isLive && (
-              <div className="absolute inset-0 flex items-center justify-center">
-                <DataFlowAnimation isLive={isLive} />
-              </div>
-            )}
-          </div>
+          <AnimatedDataFlow />
         </CardContent>
       </Card>
 
-      {/* Component descriptions */}
-      <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-        <Card className="border-accent/20">
+      <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+        <Card className="border-border">
           <CardHeader className="pb-2">
-            <CardTitle className="text-sm font-semibold text-accent">
-              ESP32 Device
+            <CardTitle className="text-sm font-mono">
+              COMMUNICATION PROTOCOLS
             </CardTitle>
           </CardHeader>
-          <CardContent className="text-xs text-muted-foreground space-y-1">
-            <p>• RFID reader (RC522)</p>
-            <p>• Keypad input (4×4)</p>
-            <p>• Servo motor lock</p>
-            <p>• WiFi connectivity</p>
-            <p>• Wokwi simulation support</p>
-          </CardContent>
-        </Card>
-
-        <Card className="border-accent/20">
-          <CardHeader className="pb-2">
-            <CardTitle className="text-sm font-semibold text-accent">
-              ICP Backend
-            </CardTitle>
-          </CardHeader>
-          <CardContent className="text-xs text-muted-foreground space-y-1">
-            <p>• Motoko smart contract</p>
-            <p>• On-chain state storage</p>
-            <p>• Role-based access control</p>
-            <p>• Query & update calls</p>
-            <p>• Tamper-proof audit logs</p>
-          </CardContent>
-        </Card>
-
-        <Card className="border-accent/20">
-          <CardHeader className="pb-2">
-            <CardTitle className="text-sm font-semibold text-accent">
-              React Frontend
-            </CardTitle>
-          </CardHeader>
-          <CardContent className="text-xs text-muted-foreground space-y-1">
-            <p>• Internet Identity auth</p>
-            <p>• Real-time dashboard</p>
-            <p>• Event monitoring</p>
-            <p>• Automation rules</p>
-            <p>• Multi-device management</p>
-          </CardContent>
-        </Card>
-      </div>
-
-      {/* Data flow legend */}
-      <Card className="border-accent/20">
-        <CardHeader>
-          <CardTitle className="text-sm">Data Flow Legend</CardTitle>
-        </CardHeader>
-        <CardContent>
-          <div className="grid grid-cols-2 md:grid-cols-4 gap-3 text-xs">
+          <CardContent className="space-y-3">
             {[
               {
-                label: "Sensor Data",
-                dir: "ESP32 → Backend",
-                color: "text-accent",
+                label: "ESP32 ↔ MQTT",
+                proto: "MQTT over TCP/IP",
+                color: "text-green-400",
+                desc: "Lightweight pub/sub messaging for IoT",
               },
               {
-                label: "Commands",
-                dir: "Backend → ESP32",
-                color: "text-warning",
+                label: "MQTT ↔ Cloud",
+                proto: "WebSocket / REST",
+                color: "text-orange-400",
+                desc: "Firebase Firestore real-time sync",
               },
               {
-                label: "Query Results",
-                dir: "Backend → Frontend",
-                color: "text-success",
+                label: "Cloud ↔ Canister",
+                proto: "HTTP Outcalls",
+                color: "text-blue-400",
+                desc: "ICP backend fetches cloud data",
               },
               {
-                label: "Update Calls",
-                dir: "Frontend → Backend",
-                color: "text-destructive",
+                label: "Canister ↔ UI",
+                proto: "ICP Agent",
+                color: "text-purple-400",
+                desc: "Candid-encoded query/update calls",
               },
-            ].map((item) => (
-              <div
-                key={item.label}
-                className="flex flex-col gap-1 p-2 rounded-lg bg-muted/30 border border-border"
-              >
-                <span className={`font-semibold ${item.color}`}>
-                  {item.label}
-                </span>
-                <span className="text-muted-foreground">{item.dir}</span>
+            ].map((row) => (
+              <div key={row.label} className="flex items-start gap-3">
+                <div
+                  className={`w-2 h-2 rounded-full mt-1.5 shrink-0 ${row.color.replace("text", "bg")}`}
+                />
+                <div>
+                  <p className={`text-xs font-mono font-bold ${row.color}`}>
+                    {row.label}
+                  </p>
+                  <p className="text-xs text-muted-foreground">
+                    {row.proto} — {row.desc}
+                  </p>
+                </div>
               </div>
             ))}
-          </div>
-        </CardContent>
-      </Card>
+          </CardContent>
+        </Card>
+
+        <Card className="border-border">
+          <CardHeader className="pb-2">
+            <CardTitle className="text-sm font-mono">SECURITY LAYERS</CardTitle>
+          </CardHeader>
+          <CardContent className="space-y-3">
+            {[
+              {
+                label: "Physical Layer",
+                desc: "ESP32 hardware PIN and RFID UID authentication",
+                badge: "L1",
+              },
+              {
+                label: "Network Layer",
+                desc: "TLS encryption for all MQTT and REST traffic",
+                badge: "L2",
+              },
+              {
+                label: "Application Layer",
+                desc: "Role-based access control (admin/user/guest)",
+                badge: "L3",
+              },
+              {
+                label: "Data Layer",
+                desc: "Tamper-proof audit logs in Firestore + ICP",
+                badge: "L4",
+              },
+            ].map((row) => (
+              <div key={row.label} className="flex items-start gap-3">
+                <Badge
+                  variant="outline"
+                  className="font-mono text-[10px] border-primary/40 text-primary shrink-0 mt-0.5"
+                >
+                  {row.badge}
+                </Badge>
+                <div>
+                  <p className="text-xs font-medium text-foreground">
+                    {row.label}
+                  </p>
+                  <p className="text-xs text-muted-foreground">{row.desc}</p>
+                </div>
+              </div>
+            ))}
+          </CardContent>
+        </Card>
+      </div>
     </div>
   );
 }

@@ -1,3 +1,4 @@
+import Leaderboard from "@/components/admin/Leaderboard";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
@@ -9,6 +10,7 @@ import {
   TableHeader,
   TableRow,
 } from "@/components/ui/table";
+import { useAppState } from "@/contexts/AppStateContext";
 import {
   Activity,
   AlertTriangle,
@@ -59,6 +61,7 @@ function AdminDashboardContent() {
   const { data: todos = [], isLoading: todosLoading } = useGetTodos();
   const deleteTodo = useDeleteTodo();
   const [deletingId, setDeletingId] = useState<bigint | null>(null);
+  const { todoStats, deviceStatus, webhookLog } = useAppState();
 
   const weeklyData = (() => {
     const days: { day: string; completed: number }[] = [];
@@ -306,6 +309,122 @@ function AdminDashboardContent() {
                       </TableRow>
                     );
                   })}
+                </TableBody>
+              </Table>
+            </div>
+          )}
+        </CardContent>
+      </Card>
+
+      {/* System Overview from AppState */}
+      <Card className="bg-card/70 backdrop-blur-sm border-border/50">
+        <CardHeader className="pb-2">
+          <CardTitle className="text-sm font-semibold flex items-center gap-2">
+            <Activity className="w-4 h-4 text-primary" />
+            System Overview
+          </CardTitle>
+        </CardHeader>
+        <CardContent className="grid grid-cols-3 gap-4">
+          <div className="text-center">
+            <p className="text-xs text-muted-foreground font-mono">
+              LOCK STATE
+            </p>
+            <p
+              className={`text-lg font-bold font-mono mt-1 ${deviceStatus.isLocked ? "text-primary" : "text-green-400"}`}
+            >
+              {deviceStatus.isLocked ? "LOCKED" : "OPEN"}
+            </p>
+          </div>
+          <div className="text-center">
+            <p className="text-xs text-muted-foreground font-mono">
+              ACTIVE TASKS
+            </p>
+            <p className="text-lg font-bold font-mono mt-1 text-foreground">
+              {todoStats.total - todoStats.completed}
+            </p>
+          </div>
+          <div className="text-center">
+            <p className="text-xs text-muted-foreground font-mono">OVERDUE</p>
+            <p className="text-lg font-bold font-mono mt-1 text-red-400">
+              {todoStats.overdue}
+            </p>
+          </div>
+        </CardContent>
+      </Card>
+
+      {/* Leaderboard */}
+      <Leaderboard />
+
+      {/* Webhook Activity Log */}
+      <Card
+        className="bg-card/70 backdrop-blur-sm border-border/50"
+        data-ocid="webhook.panel"
+      >
+        <CardHeader className="pb-2">
+          <div className="flex items-center justify-between">
+            <CardTitle className="text-sm font-semibold flex items-center gap-2">
+              <Activity className="w-4 h-4 text-primary" />
+              Webhook Activity Log
+            </CardTitle>
+            <Button
+              data-ocid="webhook.delete_button"
+              size="sm"
+              variant="outline"
+              className="h-7 text-xs border-destructive/40 text-destructive hover:bg-destructive/10"
+              onClick={() => {
+                localStorage.setItem("webhook_log", "[]");
+                toast.success("Webhook log cleared");
+              }}
+            >
+              <Trash2 className="w-3 h-3 mr-1" />
+              Clear Log
+            </Button>
+          </div>
+        </CardHeader>
+        <CardContent>
+          {webhookLog.length === 0 ? (
+            <p
+              data-ocid="webhook.empty_state"
+              className="text-xs text-muted-foreground text-center py-4"
+            >
+              No webhook events yet.
+            </p>
+          ) : (
+            <div className="overflow-auto max-h-64">
+              <Table>
+                <TableHeader>
+                  <TableRow>
+                    <TableHead className="text-xs">Time</TableHead>
+                    <TableHead className="text-xs">Event Type</TableHead>
+                    <TableHead className="text-xs">Status</TableHead>
+                    <TableHead className="text-xs">Payload</TableHead>
+                  </TableRow>
+                </TableHeader>
+                <TableBody>
+                  {webhookLog.slice(0, 20).map((entry, i) => (
+                    <TableRow
+                      key={entry.timestamp}
+                      data-ocid={`webhook.item.${i + 1}`}
+                    >
+                      <TableCell className="text-xs font-mono text-muted-foreground">
+                        {new Date(entry.timestamp).toLocaleTimeString()}
+                      </TableCell>
+                      <TableCell className="text-xs font-mono">
+                        {entry.eventType}
+                      </TableCell>
+                      <TableCell>
+                        <Badge
+                          variant="outline"
+                          className={`text-xs ${entry.status === "success" ? "bg-green-500/20 text-green-400 border-green-500/30" : "bg-red-500/20 text-red-400 border-red-500/30"}`}
+                        >
+                          {entry.status}
+                        </Badge>
+                      </TableCell>
+                      <TableCell className="text-xs text-muted-foreground max-w-32 truncate">
+                        {entry.payload}
+                      </TableCell>
+                    </TableRow>
+                  ))}
                 </TableBody>
               </Table>
             </div>

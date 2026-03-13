@@ -1,22 +1,24 @@
 import { Button } from "@/components/ui/button";
+import { playLock, playUnlock } from "@/utils/soundEffects";
 import { AlertTriangle, Lock, LockOpen } from "lucide-react";
 import { toast } from "sonner";
 import { useLockControl } from "../../hooks/useQueries";
 
 interface ControlButtonsProps {
-  isLocked: boolean;
-  emergencyMode: boolean;
+  isLocked?: boolean;
+  emergencyMode?: boolean;
 }
 
 export default function ControlButtons({
-  isLocked,
-  emergencyMode,
+  isLocked = true,
+  emergencyMode = false,
 }: ControlButtonsProps) {
   const { lockMutation, unlockMutation } = useLockControl();
 
   const handleLock = () => {
     lockMutation.mutate(undefined, {
       onSuccess: () => {
+        playLock();
         toast.success("Device locked successfully");
       },
       onError: (error) => {
@@ -28,6 +30,7 @@ export default function ControlButtons({
   const handleUnlock = () => {
     unlockMutation.mutate(undefined, {
       onSuccess: () => {
+        playUnlock();
         toast.success("Device unlocked successfully");
       },
       onError: (error) => {
@@ -39,6 +42,7 @@ export default function ControlButtons({
   return (
     <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
       <Button
+        data-ocid="control.primary_button"
         onClick={handleUnlock}
         disabled={!isLocked || unlockMutation.isPending}
         size="lg"
@@ -49,6 +53,7 @@ export default function ControlButtons({
       </Button>
 
       <Button
+        data-ocid="control.delete_button"
         onClick={handleLock}
         disabled={isLocked || lockMutation.isPending}
         size="lg"
@@ -60,16 +65,13 @@ export default function ControlButtons({
       </Button>
 
       <Button
+        data-ocid="control.secondary_button"
         size="lg"
         variant="outline"
         className="h-20 border-destructive text-destructive hover:bg-destructive hover:text-destructive-foreground shadow-lg transition-all duration-300"
         disabled={emergencyMode}
       >
-        <img
-          src="/assets/generated/lockdown-icon.dim_128x128.png"
-          alt="Lockdown"
-          className="w-6 h-6 mr-2"
-        />
+        <AlertTriangle className="w-6 h-6 mr-2" />
         Emergency Lockdown
       </Button>
     </div>

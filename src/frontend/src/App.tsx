@@ -3,12 +3,14 @@ import ProfileSetupModal from "@/components/auth/ProfileSetupModal";
 import MainLayout from "@/components/layout/MainLayout";
 import OnboardingWalkthrough from "@/components/onboarding/OnboardingWalkthrough";
 import { Toaster } from "@/components/ui/sonner";
+import { AppStateProvider } from "@/contexts/AppStateContext";
 import { ThemeProvider } from "@/contexts/ThemeContext";
 import { useActor } from "@/hooks/useActor";
 import { useInternetIdentity } from "@/hooks/useInternetIdentity";
 import { useOnboarding } from "@/hooks/useOnboarding";
 import AdminDashboard from "@/pages/AdminDashboard";
 import AdminDashboardCredentialGated from "@/pages/AdminDashboardCredentialGated";
+import Architecture from "@/pages/Architecture";
 import Dashboard from "@/pages/Dashboard";
 import EventMonitoring from "@/pages/EventMonitoring";
 import Reports from "@/pages/Reports";
@@ -161,6 +163,12 @@ const adminDashboardCredentialGatedRoute = createRoute({
   component: AdminDashboardCredentialGated,
 });
 
+const architectureRoute = createRoute({
+  getParentRoute: () => rootRoute,
+  path: "/architecture",
+  component: Architecture,
+});
+
 const routeTree = rootRoute.addChildren([
   indexRoute,
   eventMonitoringRoute,
@@ -170,6 +178,7 @@ const routeTree = rootRoute.addChildren([
   adminRoute,
   todosRoute,
   adminDashboardCredentialGatedRoute,
+  architectureRoute,
 ]);
 
 const router = createRouter({ routeTree });
@@ -184,8 +193,10 @@ export default function App() {
   return (
     <QueryClientProvider client={queryClient}>
       <ThemeProvider>
-        <RouterProvider router={router} />
-        <Toaster position="top-right" richColors />
+        <AppStateProvider>
+          <RouterProvider router={router} />
+          <Toaster position="top-right" richColors />
+        </AppStateProvider>
       </ThemeProvider>
     </QueryClientProvider>
   );

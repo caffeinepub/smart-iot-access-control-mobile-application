@@ -1,11 +1,15 @@
 import { Button } from "@/components/ui/button";
+import { useAppState } from "@/contexts/AppStateContext";
+import { playCombo, playCreditReward } from "@/utils/soundEffects";
 import { Loader2, Plus, Terminal } from "lucide-react";
 import { useCallback, useMemo, useRef, useState } from "react";
 import { toast } from "sonner";
 import type { Subtask, ToDo } from "../backend";
 import AddEditTaskModal from "../components/todos/AddEditTaskModal";
+import CRStoreModal from "../components/todos/CRStoreModal";
 import CreditWallet from "../components/todos/CreditWallet";
 import GamificationPanel from "../components/todos/GamificationPanel";
+import PomodoroTimer from "../components/todos/PomodoroTimer";
 import TaskCard from "../components/todos/TaskCard";
 import TaskFilters from "../components/todos/TaskFilters";
 import TaskStatsPanel from "../components/todos/TaskStatsPanel";
@@ -38,6 +42,13 @@ interface FloatingCredit {
 export default function ToDoList() {
   const { identity } = useInternetIdentity();
   const { data: todos = [], isLoading } = useGetTodos();
+  const {
+    todoStats,
+    updateTodoStats,
+    incrementCombo,
+    comboCount,
+    pomodoroActive,
+  } = useAppState();
   const updateTodo = useUpdateTodo();
   const deleteTodo = useDeleteTodo();
 
@@ -131,13 +142,44 @@ export default function ToDoList() {
           const x = window.innerWidth / 2;
           const y = 200;
           spawnFloatingCredit(id, x, y);
-          toast.success(`+${amount} CR earned! Task complete 🎯`);
+          playCreditReward();
+          incrementCombo();
+          updateTodoStats({
+            totalCR: todoStats.totalCR + (pomodoroActive ? amount * 2 : amount),
+            completed: todoStats.completed + 1,
+          });
+          // Feed completed todos to activity feed
+          try {
+            const feed = JSON.parse(
+              localStorage.getItem("completed_todos_feed") ?? "[]",
+            );
+            feed.unshift({
+              title: todo?.title ?? "Task",
+              cr: pomodoroActive ? amount * 2 : amount,
+              timestamp: Date.now(),
+            });
+            localStorage.setItem(
+              "completed_todos_feed",
+              JSON.stringify(feed.slice(0, 10)),
+            );
+          } catch {}
+          toast.success(
+            `+${pomodoroActive ? amount * 2 : amount} CR earned! Task complete`,
+          );
         }
       } catch {
         toast.error("Failed to update task");
       }
     },
-    [updateTodo, todos, spawnFloatingCredit],
+    [
+      updateTodo,
+      todos,
+      spawnFloatingCredit,
+      incrementCombo,
+      updateTodoStats,
+      todoStats,
+      pomodoroActive,
+    ],
   );
 
   const handleCompleteWithStatus = useCallback(
@@ -151,23 +193,53 @@ export default function ToDoList() {
         const x = window.innerWidth / 2;
         const y = 200;
         spawnFloatingCredit(id, x, y);
+        playCreditReward();
+        incrementCombo();
+        const crGain = pomodoroActive ? amount * 2 : amount;
+        const penalty = isOverdue ? 1 : 0;
+        updateTodoStats({
+          totalCR: todoStats.totalCR + crGain - penalty,
+          completed: todoStats.completed + 1,
+        });
+        try {
+          const feed = JSON.parse(
+            localStorage.getItem("completed_todos_feed") ?? "[]",
+          );
+          feed.unshift({
+            title: todo?.title ?? "Task",
+            cr: crGain,
+            timestamp: Date.now(),
+          });
+          localStorage.setItem(
+            "completed_todos_feed",
+            JSON.stringify(feed.slice(0, 10)),
+          );
+        } catch {}
         if (isOverdue) {
           spawnFloatingCredit(id, x, y, true);
           toast.success(
-            `+${amount} CR earned! ⚠️ -1 CR overdue penalty applied.`,
+            `+${crGain} CR earned! ⚠️ -1 CR overdue penalty applied.`,
             {
               description:
                 "Complete tasks before their due date to avoid penalties.",
             },
           );
         } else {
-          toast.success(`+${amount} CR earned! Task complete 🎯`);
+          toast.success(`+${crGain} CR earned! Task complete`);
         }
       } catch {
         toast.error("Failed to complete task");
       }
     },
-    [updateTodo, todos, spawnFloatingCredit],
+    [
+      updateTodo,
+      todos,
+      spawnFloatingCredit,
+      incrementCombo,
+      updateTodoStats,
+      todoStats,
+      pomodoroActive,
+    ],
   );
 
   const handleToggleSubtask = useCallback(
@@ -283,6 +355,7 @@ export default function ToDoList() {
           </p>
         </div>
         <div className="flex items-center gap-3">
+          <CRStoreModal />
           <CreditWallet />
           <Button
             onClick={() => {
@@ -365,6 +438,22 @@ export default function ToDoList() {
 
         {/* Sidebar */}
         <div className="space-y-4">
+          <PomodoroTimer />
+          {comboCount >= 2 && (
+            <div
+              className="text-center py-2 rounded-lg font-mono font-bold text-sm animate-pulse"
+              style={{
+                background:
+                  comboCount >= 3
+                    ? "rgba(249,115,22,0.15)"
+                    : "rgba(234,179,8,0.15)",
+                border: `1px solid ${comboCount >= 3 ? "rgba(249,115,22,0.4)" : "rgba(234,179,8,0.4)"}`,
+                color: comboCount >= 3 ? "#f97316" : "#eab308",
+              }}
+            >
+              COMBO x{comboCount}!
+            </div>
+          )}
           <GamificationPanel />
         </div>
       </div>

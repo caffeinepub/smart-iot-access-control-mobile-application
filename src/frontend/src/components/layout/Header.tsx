@@ -22,6 +22,7 @@ import {
   LayoutDashboard,
   LogOut,
   Menu,
+  Network,
   Settings,
   Shield,
   ShieldAlert,
@@ -64,6 +65,7 @@ const NAV_LINKS = [
   { to: "/todos", label: "To-Do", icon: ClipboardList },
   { to: "/reports", label: "Reports", icon: FileText },
   { to: "/settings", label: "Settings", icon: Settings },
+  { to: "/architecture", label: "Architecture", icon: Network },
 ];
 
 export default function Header() {
