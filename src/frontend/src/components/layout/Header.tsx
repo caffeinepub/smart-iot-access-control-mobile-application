@@ -18,6 +18,7 @@ import {
   Bell,
   ChevronDown,
   ClipboardList,
+  Cpu,
   FileText,
   LayoutDashboard,
   LogOut,
@@ -66,6 +67,7 @@ const NAV_LINKS = [
   { to: "/reports", label: "Reports", icon: FileText },
   { to: "/settings", label: "Settings", icon: Settings },
   { to: "/architecture", label: "Architecture", icon: Network },
+  { to: "/esp32-config", label: "ESP32 Config", icon: Cpu },
 ];
 
 export default function Header() {

@@ -12,6 +12,7 @@ import AdminDashboard from "@/pages/AdminDashboard";
 import AdminDashboardCredentialGated from "@/pages/AdminDashboardCredentialGated";
 import Architecture from "@/pages/Architecture";
 import Dashboard from "@/pages/Dashboard";
+import ESP32Config from "@/pages/ESP32Config";
 import EventMonitoring from "@/pages/EventMonitoring";
 import Reports from "@/pages/Reports";
 import Settings from "@/pages/Settings";
@@ -169,6 +170,12 @@ const architectureRoute = createRoute({
   component: Architecture,
 });
 
+const esp32ConfigRoute = createRoute({
+  getParentRoute: () => rootRoute,
+  path: "/esp32-config",
+  component: ESP32Config,
+});
+
 const routeTree = rootRoute.addChildren([
   indexRoute,
   eventMonitoringRoute,
@@ -179,6 +186,7 @@ const routeTree = rootRoute.addChildren([
   todosRoute,
   adminDashboardCredentialGatedRoute,
   architectureRoute,
+  esp32ConfigRoute,
 ]);
 
 const router = createRouter({ routeTree });
